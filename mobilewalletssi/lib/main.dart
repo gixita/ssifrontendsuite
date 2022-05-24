@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'sql_helper.dart';
 
 void main() {
   runApp(const MyApp());
@@ -67,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    SQLHelper.db(); // Loading the diary when the app starts
+    // SQLHelper.db(); // Loading the diary when the app starts
   }
 
   @override

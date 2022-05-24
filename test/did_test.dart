@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
-import 'package:mobilewallet/did.dart';
-import 'package:mobilewallet/did_model.dart';
+import 'package:ssifrontendsuite/did.dart';
+import 'package:ssifrontendsuite/did_model.dart';
 import 'package:http/http.dart' as http;
 
 // import 'package:mobilewallet/sql_helper.dart';

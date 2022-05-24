@@ -1,12 +1,12 @@
 import 'dart:convert';
-import 'package:mobilewallet/did.dart';
-import 'package:mobilewallet/vc.dart';
-import 'package:mobilewallet/workflow.dart';
+import 'package:ssifrontendsuite/did.dart';
+import 'package:ssifrontendsuite/vc.dart';
+import 'package:ssifrontendsuite/workflow.dart';
 import 'package:test/test.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobilewallet/did_model.dart';
-import 'package:mobilewallet/vc_model.dart';
-import 'package:mobilewallet/workflow_manager.dart';
+import 'package:ssifrontendsuite/did_model.dart';
+import 'package:ssifrontendsuite/vc_model.dart';
+import 'package:ssifrontendsuite/workflow_manager.dart';
 
 void main() {
   test("RealApi : issuance workflow mediated", () async {

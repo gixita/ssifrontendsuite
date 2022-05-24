@@ -1,10 +1,10 @@
 @Skip(
     "SQL test are not supported so skipped in flutter test (did_db_test.dart)")
-import 'package:mobilewallet/did.dart';
+import 'package:ssifrontendsuite/did.dart';
 import 'package:test/test.dart' as test;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobilewallet/did_model.dart';
-import 'package:mobilewallet/sql_helper.dart';
+import 'package:ssifrontendsuite/did_model.dart';
+import 'package:ssifrontendsuite/sql_helper.dart';
 
 void main() {
   String rawDid = r"""{

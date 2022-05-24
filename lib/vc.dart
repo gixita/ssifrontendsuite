@@ -1,4 +1,4 @@
-import 'package:mobilewallet/sql_helper.dart';
+import 'package:ssifrontendsuite/sql_helper.dart';
 import 'vc_model.dart';
 
 class VCService {

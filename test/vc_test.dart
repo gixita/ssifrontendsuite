@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
-import 'package:mobilewallet/vc.dart';
-import 'package:mobilewallet/vc_model.dart';
+import 'package:ssifrontendsuite/vc.dart';
+import 'package:ssifrontendsuite/vc_model.dart';
 
 void main() {
   String vc = r"""{

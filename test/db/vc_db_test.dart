@@ -2,8 +2,8 @@
 
 import 'package:test/test.dart' as test;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobilewallet/vc.dart';
-import 'package:mobilewallet/vc_model.dart';
+import 'package:ssifrontendsuite/vc.dart';
+import 'package:ssifrontendsuite/vc_model.dart';
 
 void main() {
   String rawVc = r"""{

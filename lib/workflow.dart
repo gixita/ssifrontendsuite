@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'did_model.dart';
 import 'vc_model.dart';
-import 'vc.dart';
+import 'vc_parsing.dart';
 import 'dart:math';
 
 class Workflow {
@@ -239,7 +239,7 @@ class Workflow {
     http.Response res =
         await client.post(url, body: body, headers: requestHeaders);
 
-    VC vc = VCService().parseGenericVC(res.body);
+    VC vc = VCParsing().parseGenericVC(res.body);
     if (res.statusCode == 201) {
       return vc;
     } else {

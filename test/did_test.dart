@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:ssifrontendsuite/did.dart';
+import 'package:ssifrontendsuite/did_http.dart';
 import 'package:ssifrontendsuite/did_model.dart';
 import 'package:http/http.dart' as http;
 

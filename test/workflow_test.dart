@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:ssifrontendsuite/did.dart';
+import 'package:ssifrontendsuite/did_http.dart';
 import 'package:ssifrontendsuite/vc.dart';
 import 'package:ssifrontendsuite/workflow.dart';
 import 'package:test/test.dart';

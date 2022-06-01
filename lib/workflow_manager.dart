@@ -1,3 +1,5 @@
+import 'package:ssifrontendsuite/did.dart';
+
 import 'did_model.dart';
 import 'workflow.dart';
 import 'package:http/http.dart' as http;
@@ -81,5 +83,60 @@ class WorkflowManager {
     }
 
     return "";
+  }
+
+  // This is a temporary method and should be deleted as soon as the authority portal is released
+  void authorityPortalIssueVC(String serviceEndpoint, Did mobileAppDid) async {
+    Workflow wf = Workflow();
+    http.Client client = http.Client();
+    Did authorityPortalDid = await DIDService().createDid();
+    String residentCardUnsigned = """{
+  "credential": {
+      "@context":[
+          "https://www.w3.org/2018/credentials/v1",
+          "https://w3id.org/citizenship/v1"
+      ],
+      "id":"https://issuer.oidp.uscis.gov/credentials/83627465",
+      "type":[
+          "VerifiableCredential",
+          "PermanentResidentCard"
+      ],
+      "issuer":"${authorityPortalDid.id}",
+      "issuanceDate":"2019-12-03T12:19:52Z",
+      "expirationDate":"2029-12-03T12:19:52Z",
+      "credentialSubject":{
+          "id":"${mobileAppDid.id}",
+          "type":[
+            "PermanentResident",
+            "Person"
+          ],
+          "givenName":"JOHN",
+          "familyName":"SMITH",
+          "gender":"Male",
+          "image":"data:image/png;base64,iVBORw0KGgo...kJggg==",
+          "residentSince":"2015-01-01",
+          "lprCategory":"C09",
+          "lprNumber":"999-999-999",
+          "commuterClassification":"C1",
+          "birthCountry":"Bahamas",
+          "birthDate":"1958-07-17"
+      }
+    },
+    "options": {
+        "verificationMethod": "${authorityPortalDid.verificationMethod[0].id}",
+        "proofPurpose": "assertionMethod"
+    }
+}""";
+
+    VC vc = await wf.signVCOnAPSSIServer(client, residentCardUnsigned);
+    List<VC> vcs = <VC>[vc];
+    String residentCardUnsignedPresentationFilled = wf
+        .fillInPresentationForIssuanceUnsigned(client, vcs, authorityPortalDid);
+
+    String residentCardPresentation = await wf.provePresentation(
+        client, residentCardUnsignedPresentationFilled);
+
+    await wf.reviewAndSubmitPresentation(
+        client, residentCardPresentation, serviceEndpoint);
   }
 }

@@ -133,15 +133,19 @@ class SQLHelper {
 
   static Future<List<Map<String, dynamic>>> getReceivedVCs(String myDid) async {
     final db = await SQLHelper.db();
-    return await db.query('vcs',
-        where: "issuer != ?", whereArgs: [myDid], limit: 1);
+    return await db.query('vcs', where: "issuer != ?", whereArgs: [myDid]);
+  }
+
+  static Future<List<Map<String, dynamic>>> getAllVCs() async {
+    final db = await SQLHelper.db();
+
+    return await db.query('vcs', where: "1");
   }
 
   static Future<List<Map<String, dynamic>>> getSelfSignedVCs(
       String myDid) async {
     final db = await SQLHelper.db();
-    return await db.query('vcs',
-        where: "issuer = ?", whereArgs: [myDid], limit: 1);
+    return await db.query('vcs', where: "issuer = ?", whereArgs: [myDid]);
   }
 
   static Future<List<Map<String, dynamic>>> getVCsByTypes(

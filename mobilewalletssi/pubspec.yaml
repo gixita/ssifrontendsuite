@@ -37,8 +37,12 @@ dependencies:
   sqflite: ^2.0.2+1
   http: ^0.13.4
   build_runner: ^2.1.10
-  sqflite_common_ffi: ^2.1.1
-  
+  ssifrontendsuite:
+    path: ../
+  qr_code_scanner:
+    git:
+      url: https://github.com/X-SLAYER/qr_code_scanner
+      ref: flutter-beta
 
 
 dev_dependencies:

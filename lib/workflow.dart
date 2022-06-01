@@ -143,6 +143,11 @@ class Workflow {
     return <String>[];
   }
 
+  // TODO update the code to grab the vc type from the exchange definition
+  List<String> getTypesFromExchangeDefinition(String exchangeDefinition) {
+    return <String>["VerifiableCredential"];
+  }
+
   // The mobile wallet creates a proof on its own ssi server
   // He uses his own DID and send the following payload :
   //   {

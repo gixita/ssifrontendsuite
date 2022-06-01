@@ -279,7 +279,12 @@ void main() {
     // Use Workflow manager
     List<List<String>> params = await WorkflowManager()
         .startExchangeSSI(outOfBandInvitation, mobileAppDid);
+
     String serviceEndpoint = params[1][0];
+    String challenge = params[2][0];
+    String authProofSigned = params[3][0];
+    String exchangeDefinition = params[4][0];
+
     String residentCardUnsigned = """{
   "credential": {
       "@context":[
@@ -333,8 +338,8 @@ void main() {
         client, residentCardPresentation, serviceEndpoint);
     expect(jsonDecode(submitVPResult)['errors'].isEmpty, true);
     // Finish with worflow manager
-    String issuedCredential =
-        await WorkflowManager().finishEchangeSSI(params, mobileAppDid);
+    String issuedCredential = await WorkflowManager()
+        .retreiveSignedVCFromAuthority(params, mobileAppDid);
     var issuedCredentialJson = jsonDecode(issuedCredential);
     VC vcToStoreByMA = VCService().parseGenericVC(
         jsonEncode(issuedCredentialJson['vp']['verifiableCredential'][0]));

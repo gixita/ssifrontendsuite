@@ -281,9 +281,6 @@ void main() {
         .startExchangeSSI(outOfBandInvitation, mobileAppDid);
 
     String serviceEndpoint = params[1][0];
-    String challenge = params[2][0];
-    String authProofSigned = params[3][0];
-    String exchangeDefinition = params[4][0];
 
     String residentCardUnsigned = """{
   "credential": {

@@ -61,12 +61,8 @@ class WorkflowManager {
       List<List<String>> params, Did holder) async {
     Workflow wf = Workflow();
     http.Client client = http.Client();
-    VCService vcService = VCService();
-    List<String> currentWorkflow = params[0];
     String serviceEndpoint = params[1][0];
-    String challenge = params[2][0];
     String authProofSigned = params[3][0];
-    String exchangeDefinition = params[4][0];
 
     String retreiveCredentialStatusCode = "429";
     int retry = 0;
@@ -86,14 +82,9 @@ class WorkflowManager {
     return issuedCredential[1];
   }
 
-  Future<List<VC>> selectVCs(List<List<String>> params, Did holder) async {
+  Future<List<VC>> selectVCs(List<List<String>> params) async {
     Workflow wf = Workflow();
-    http.Client client = http.Client();
     VCService vcService = VCService();
-    List<String> currentWorkflow = params[0];
-    String serviceEndpoint = params[1][0];
-    String challenge = params[2][0];
-    String authProofSigned = params[3][0];
     String exchangeDefinition = params[4][0];
 
     return await vcService
@@ -104,12 +95,9 @@ class WorkflowManager {
       List<List<String>> params, Did holder, List<VC> vcsToPresent) async {
     Workflow wf = Workflow();
     http.Client client = http.Client();
-    VCService vcService = VCService();
     List<String> currentWorkflow = params[0];
     String serviceEndpoint = params[1][0];
     String challenge = params[2][0];
-    String authProofSigned = params[3][0];
-    String exchangeDefinition = params[4][0];
 
     String unsignedPresentation = wf.fillInPresentationByMobileAppUnsigned(
         client, vcsToPresent, holder, currentWorkflow, challenge);

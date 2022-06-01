@@ -34,12 +34,12 @@ class VCService {
   }
 
   Future<List<VC>> getAllVCs() async {
-    List<Map<String, dynamic>> VCList = await SQLHelper.getAllVCs();
-    List<VC> vcList = <VC>[];
-    for (var element in VCList) {
-      vcList.add(VCService().parseGenericVC(element['rawVC']));
+    List<Map<String, dynamic>> vcList = await SQLHelper.getAllVCs();
+    List<VC> vcListToReturn = <VC>[];
+    for (var element in vcList) {
+      vcListToReturn.add(VCService().parseGenericVC(element['rawVC']));
     }
-    return vcList;
+    return vcListToReturn;
   }
 
   Future<List<VC>> getSelfSignedVCs(String myDid) async {

@@ -1,35 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:ssifrontendsuite/vc.dart';
 import 'package:ssifrontendsuite/vc_model.dart';
+import 'package:ssifrontendsuite/workflow_manager.dart';
 
 // usage of flutter builder described in this tutorial
 // https://www.woolha.com/tutorials/flutter-using-futurebuilder-widget-examples
 
-class SSIWorkflowPage extends StatefulWidget {
-  const SSIWorkflowPage({Key? key}) : super(key: key);
+class SelectVCsPage extends StatefulWidget {
+  const SelectVCsPage({Key? key}) : super(key: key);
 
   @override
-  State<SSIWorkflowPage> createState() => _SSIWorkflowPageState();
+  State<SelectVCsPage> createState() => _SelectVCsPageState();
 }
 
-class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
+class _SelectVCsPageState extends State<SelectVCsPage> {
   String errorMessage = "";
   List<VC> selectVcs = [];
   List<int> selectedList = [];
-
-  Future<List<VC>> getVCs() async {
-    List<VC> localSelectVcs = await VCService().getAllVCs();
-    setState(() {
-      selectVcs = localSelectVcs;
-    });
-    return selectVcs;
-  }
 
   @override
   void initState() {
     super.initState();
     selectedList = [];
-    getVCs();
   }
 
   void selectItem(int index) {
@@ -44,8 +36,8 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
 
   @override
   Widget build(BuildContext context) {
-    final outOfBandInvitation =
-        ModalRoute.of(context)!.settings.arguments as String;
+    final params =
+        ModalRoute.of(context)!.settings.arguments as List<List<String>>;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -55,13 +47,19 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
         ),
         title: const Text("Select documents to send"),
       ),
-      body: selectItemWidget(),
+      body: selectItemWidget(params),
     );
   }
 
-  FutureBuilder<List<VC>> selectItemWidget() {
+  Future<List<VC>> getCompatibleVCs(List<List<String>> params) async {
+    return await WorkflowManager().selectVCs(params);
+  }
+
+  FutureBuilder<List<VC>> selectItemWidget(List<List<String>> params) {
     return FutureBuilder<List<VC>>(
-      future: Future<List<VC>>.value(selectVcs),
+      // This will trigger the retreive the vc from db each time a user is ticking a selection
+      // TODO only call the db once
+      future: getCompatibleVCs(params),
       builder: (
         BuildContext context,
         AsyncSnapshot<List<VC>> snapshot,

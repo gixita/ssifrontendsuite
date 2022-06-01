@@ -52,8 +52,7 @@ class Api {
     ]
 }""";
       // Fake Authority portal configure the SSI server for mediated issuance
-      String resConf = await wf.configureCredentialExchange(
-          client, issuanceFakeConfiguration);
+      await wf.configureCredentialExchange(client, issuanceFakeConfiguration);
       // Get the outofband exchange invitation for the mobile wallet
       String credentialType = "PermanentResidentCard";
       String outOfBandInvitation = wf.authorityReturnExchangeInvitation(

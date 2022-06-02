@@ -82,6 +82,16 @@ class SQLHelper {
     return await db.query('dids', where: "id = 1", limit: 1);
   }
 
+  static Future<bool> didExists() async {
+    final db = await SQLHelper.db();
+    int? countDid =
+        firstIntValue(await db.rawQuery("SELECT count(*) from dids"));
+    if (countDid! < 1) {
+      return false;
+    }
+    return true;
+  }
+
   // static Future<int> updateItem(
   //     int id, String title, String? descrption) async {
   //   final db = await SQLHelper.db();
@@ -138,7 +148,8 @@ class SQLHelper {
 
   static Future<List<Map<String, dynamic>>> getAllVCs() async {
     final db = await SQLHelper.db();
-
+    int? countVC = firstIntValue(await db.rawQuery("SELECT count(*) from vcs"));
+    print(countVC);
     return await db.query('vcs', where: "1");
   }
 

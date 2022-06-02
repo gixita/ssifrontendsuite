@@ -93,7 +93,7 @@ Scan the QR code to start the issuance workflow.<br>
       String residentCardPresentation = await wf.provePresentation(
           client, residentCardUnsignedPresentationFilled);
 
-      String submitVPResult = await wf.reviewAndSubmitPresentation(
+      await wf.reviewAndSubmitPresentation(
           client, residentCardPresentation, serviceEndpoint);
       return Response.ok(
         jsonEncode({'success': true}),

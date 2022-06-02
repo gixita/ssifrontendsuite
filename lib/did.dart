@@ -4,6 +4,10 @@ import 'sql_helper.dart';
 import 'did_http.dart';
 
 class DIDService {
+  Future<bool> didExists() async {
+    return await SQLHelper.didExists();
+  }
+
   Future<Did> getDid() async {
     var did = await SQLHelper.getDid();
     return didFromJsonString(did[0]);

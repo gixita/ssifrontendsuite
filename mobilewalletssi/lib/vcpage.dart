@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ssifrontendsuite/vc.dart';
 import 'package:ssifrontendsuite/vc_model.dart';
+import 'package:ssifrontendsuite/workflow_manager.dart';
 import 'data/dummy_vc.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 // usage of flutter builder described in this tutorial
 // https://www.woolha.com/tutorials/flutter-using-futurebuilder-widget-examples
@@ -16,28 +18,52 @@ class VCPage extends StatefulWidget {
 
 class _VCPageState extends State<VCPage> {
   String errorMessage = "";
-  List<VC> vcs = [];
-
-  Future<List<VC>> getVCs() async {
-    vcs = await VCService().getAllVCs();
-    return vcs;
-  }
+  var vcs;
+  String outOfBandIssuanceInvitation = "";
+  String outOfBandPresentationInvitation = "";
 
   Future<bool> storeInDb() async {
     await storeDummyVCS();
     List<VC> localvcs = await VCService().getAllVCs();
+    String localOutOfBandIssuanceInvitation =
+        await getOutOfBandIssuanceInvitation();
+    String localOutOfBandPresentationInvitation =
+        await getOutOfBandPresentationInvitation();
     setState(() {
       vcs = localvcs;
+      outOfBandIssuanceInvitation = localOutOfBandIssuanceInvitation;
+      outOfBandPresentationInvitation = localOutOfBandPresentationInvitation;
     });
     return true;
+  }
+
+  Future<String> getOutOfBandIssuanceInvitation() async {
+    return await WorkflowManager().getOutOfBandIssuanceInvitation();
+  }
+
+  Future<String> getOutOfBandPresentationInvitation() async {
+    return await WorkflowManager().getOutOfBandPresentationInvitation();
   }
 
   @override
   void initState() {
     super.initState();
+    vcs = null;
     // SQLHelper.db(); // Loading the diary when the app starts
     storeInDb();
-    getVCs();
+    refresh();
+  }
+
+  Future<List<VC>> reload() async {
+    await Future.delayed(const Duration(milliseconds: 1500));
+    return VCService().getAllVCs();
+  }
+
+  Future<void> refresh() async {
+    List<VC> local = await VCService().getAllVCs();
+    setState(() {
+      vcs = local;
+    });
   }
 
   @override
@@ -45,66 +71,28 @@ class _VCPageState extends State<VCPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              refresh();
+            },
+          )
+        ],
       ),
-      body: FutureBuilder<List<VC>>(
-        future: Future<List<VC>>.value(vcs),
-        builder: (
-          BuildContext context,
-          AsyncSnapshot<List<VC>> snapshot,
-        ) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasError) {
-              return const Text('Error');
-            } else if (snapshot.hasData) {
-              if (snapshot.data != null) {
-                return ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Card(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              ListTile(
-                                leading: const Icon(Icons.album),
-                                title: Text(snapshot.data![index].type
-                                    .join(", ")
-                                    .toString()),
-                                subtitle: Text(
-                                    'Issuer: ${snapshot.data![index].issuer}'),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  TextButton(
-                                    child: const Text('View details'),
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, '/vcdetails',
-                                          arguments: snapshot.data![index]);
-                                    },
-                                  ),
-                                  const SizedBox(width: 8),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    });
-              }
-              return const Text("No vc to display");
-            } else {
-              return const Text('Empty data');
-            }
-          } else {
-            return Text('State: ${snapshot.connectionState}');
-          }
-        },
-      ),
+      body: Center(
+          child: Stack(
+        children: [
+          if (vcs != null)
+            Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [listViewVCs(vcs)])
+          else
+            Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [CircularProgressIndicator()])
+        ],
+      )),
       floatingActionButton:
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
         FloatingActionButton(
@@ -120,11 +108,65 @@ class _VCPageState extends State<VCPage> {
         FloatingActionButton(
             heroTag: null,
             onPressed: () {
-              // Navigator.pushNamed(context, '/ssiworkflow');
+              Navigator.pushNamed(context, '/ssiworkflow',
+                      arguments: outOfBandIssuanceInvitation)
+                  .then((T) {
+                setState(() {
+                  vcs = null;
+                });
+                refresh();
+              });
             },
             tooltip: 'Add presentation',
-            child: const Icon(Icons.add)),
+            child: const Icon(Icons.receipt)),
+        const SizedBox(
+          width: 8,
+        ),
+        FloatingActionButton(
+            heroTag: null,
+            onPressed: () {
+              Navigator.pushNamed(context, '/ssiworkflow',
+                  arguments: outOfBandPresentationInvitation);
+            },
+            tooltip: 'Add presentation',
+            child: const Icon(Icons.send)),
       ]),
     );
+  }
+
+  ListView listViewVCs(List<VC> vcList) {
+    return ListView.builder(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        itemCount: vcList.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Card(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(Icons.album),
+                    title: Text(vcList[index].type.join(", ").toString()),
+                    subtitle: Text('Issuer: ${vcList[index].issuer}'),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      TextButton(
+                        child: const Text('View details'),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/vcdetails',
+                              arguments: vcList[index]);
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }

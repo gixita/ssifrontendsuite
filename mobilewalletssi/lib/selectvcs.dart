@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mobilewallet/ssi.dart';
+import 'package:ssifrontendsuite/did.dart';
 import 'package:ssifrontendsuite/vc.dart';
 import 'package:ssifrontendsuite/vc_model.dart';
+import 'package:ssifrontendsuite/did_model.dart';
 import 'package:ssifrontendsuite/workflow_manager.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 // usage of flutter builder described in this tutorial
 // https://www.woolha.com/tutorials/flutter-using-futurebuilder-widget-examples
@@ -111,11 +115,35 @@ class _SelectVCsPageState extends State<SelectVCsPage> {
                   selectedList.isNotEmpty
                       ? ElevatedButton(
                           child: const Text("Sign and send"),
-                          onPressed: () {
+                          onPressed: () async {
                             List<VC> sendVCList = [];
                             for (var i in selectedList) {
                               sendVCList.add(snapshot.data![i]);
                             }
+                            Did holder = await DIDService().getDid();
+                            bool result = await WorkflowManager()
+                                .sendVCs(params, holder, sendVCList);
+                            if (result) {
+                              showSimpleNotification(
+                                const Text("Your documents are send"),
+                                background: Colors.green,
+                              );
+                              // ignore: use_build_context_synchronously
+                              // Navigator.popUntil(
+                              //     context, ModalRoute.withName('/'));
+                            } else {
+                              showSimpleNotification(
+                                const Text(
+                                    "An error occured, please try again"),
+                                background: Colors.red,
+                              );
+                              //ignore: use_build_context_synchronously
+                              Navigator.popUntil(
+                                  context, ModalRoute.withName('/'));
+                            }
+                            // Send list to server
+                            //redirect to home screen
+                            // make notification if it worked
                           },
                         )
                       : const ElevatedButton(

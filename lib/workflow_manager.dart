@@ -2,6 +2,7 @@ import 'package:ssifrontendsuite/did.dart';
 import 'package:ssifrontendsuite/vc.dart';
 
 import 'did_model.dart';
+import 'did_http.dart';
 import 'workflow.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -47,7 +48,8 @@ class WorkflowManager {
         throw "The mobile could not authenticate on the server";
       }
     }
-
+    print("auth proof signed");
+    print(authProofSigned);
     return [
       currentWorflow,
       <String>[serviceEndpoint],
@@ -57,7 +59,7 @@ class WorkflowManager {
     ];
   }
 
-  Future<String> retreiveSignedVCFromAuthority(
+  Future<VC> retreiveSignedVCFromAuthority(
       List<List<String>> params, Did holder) async {
     Workflow wf = Workflow();
     http.Client client = http.Client();
@@ -69,6 +71,7 @@ class WorkflowManager {
     List<String> testRetrieveCredential = <String>[];
     List<String> issuedCredential = <String>[];
     while (retry < 14) {
+      print("retry $retry before getting the issued cred");
       testRetrieveCredential = await wf.continueWithSignedPresentation(
           client, authProofSigned, serviceEndpoint);
       retry += 1;
@@ -79,7 +82,12 @@ class WorkflowManager {
       }
       await Future.delayed(const Duration(seconds: 1));
     }
-    return issuedCredential[1];
+    print("issued cred");
+    print(issuedCredential[1]);
+    var receivedVCJson = jsonDecode(issuedCredential[1]);
+    VC receivedVC = VCService().parseGenericVC(
+        jsonEncode(receivedVCJson['vp']['verifiableCredential'][0]));
+    return receivedVC;
   }
 
   Future<List<VC>> selectVCs(List<List<String>> params) async {
@@ -91,7 +99,8 @@ class WorkflowManager {
         .getVCsByTypes(wf.getTypesFromExchangeDefinition(exchangeDefinition));
   }
 
-  Future<bool> signAndSendVCs(
+  // In the presentation workflow, we finish by sending the VCs to the authority portal
+  Future<bool> sendVCs(
       List<List<String>> params, Did holder, List<VC> vcsToPresent) async {
     Workflow wf = Workflow();
     http.Client client = http.Client();
@@ -101,23 +110,31 @@ class WorkflowManager {
 
     String unsignedPresentation = wf.fillInPresentationByMobileAppUnsigned(
         client, vcsToPresent, holder, currentWorkflow, challenge);
+    print("unsigned presentation----");
+    print(unsignedPresentation);
+
     String signedPresentation =
         await wf.provePresentation(client, unsignedPresentation);
+    print("signed presentation ----");
+    print(signedPresentation);
     List<String> endOfPresentationResponse =
         await wf.continueWithSignedPresentation(
             client, signedPresentation, serviceEndpoint);
     if (endOfPresentationResponse[0] != "200") {
-      throw "Impossible to present proofs to the authority";
+      return false;
+      // throw "Impossible to present proofs to the authority";
     } else {
       return true;
     }
   }
 
   // This is a temporary method and should be deleted as soon as the authority portal is released
-  void authorityPortalIssueVC(String serviceEndpoint, Did mobileAppDid) async {
+  Future<void> authorityPortalIssueVC(
+      String serviceEndpoint, Did mobileAppDid) async {
     Workflow wf = Workflow();
+    final didHttp = DIDHttpService();
     http.Client client = http.Client();
-    Did authorityPortalDid = await DIDService().createDid();
+    Did authorityPortalDid = await didHttp.getNewDid(client);
     String residentCardUnsigned = """{
   "credential": {
       "@context":[
@@ -155,16 +172,117 @@ class WorkflowManager {
         "proofPurpose": "assertionMethod"
     }
 }""";
-
+    print("before signing");
     VC vc = await wf.signVCOnAPSSIServer(client, residentCardUnsigned);
     List<VC> vcs = <VC>[vc];
+    print("before fill preseentation");
     String residentCardUnsignedPresentationFilled = wf
         .fillInPresentationForIssuanceUnsigned(client, vcs, authorityPortalDid);
-
+    print("before prove presentation");
     String residentCardPresentation = await wf.provePresentation(
         client, residentCardUnsignedPresentationFilled);
-
+    print("before review and submit");
     await wf.reviewAndSubmitPresentation(
         client, residentCardPresentation, serviceEndpoint);
+    print("after review and submit");
+  }
+
+  // Temporary method to configure server for issuance
+  Future<String> getOutOfBandIssuanceInvitation() async {
+    http.Client client = http.Client();
+    Workflow wf = Workflow();
+
+    String uuidEchangeId = wf.generateRandomEchangeId();
+    String issuanceFakeConfiguration = """{
+    "exchangeId": "$uuidEchangeId",
+    "query": [
+      {
+        "type": "DIDAuth",
+        "credentialQuery": []
+      }
+    ],
+    "interactServices": [
+      {
+        "type": "MediatedHttpPresentationService2021"
+      }
+    ],
+    "isOneTime": true,
+    "callback": [
+      {
+        "url": "https://ptsv2.com/t/uuu96-1653299746/post"
+      }
+    ]
+}""";
+    // Fake Authority portal configure the SSI server for mediated issuance
+    String resConf =
+        await wf.configureCredentialExchange(client, issuanceFakeConfiguration);
+    var resConfJson = jsonDecode(resConf);
+    // Get the outofband exchange invitation for the mobile wallet
+    String credentialType = "PermanentResidentCard";
+    String outOfBandInvitation = wf.authorityReturnExchangeInvitation(
+        issuanceFakeConfiguration, credentialType);
+    return outOfBandInvitation;
+  }
+
+  // Temporary method to configure server for presentation
+  Future<String> getOutOfBandPresentationInvitation() async {
+    http.Client client = http.Client();
+    Workflow wf = Workflow();
+
+    String uuidEchangeId = wf.generateRandomEchangeId();
+    String issuanceFakeConfiguration = """{
+   "exchangeId":"$uuidEchangeId",
+   "query":[
+      {
+         "type":"PresentationDefinition",
+         "credentialQuery":[
+            {
+               "presentationDefinition":{
+                    "id":"286bc1e0-f1bd-488a-a873-8d71be3c690e",
+                    "input_descriptors":[
+                        {
+                          "id":"permanent_resident_card",
+                          "name":"Permanent Resident Card",
+                          "purpose":"We can only allow permanent residents into the application",
+                          "constraints": {
+                            "fields":[
+                              {
+                                "path":[
+                                  "\$.type"
+                                ],
+                                "filter":{
+                                  "type":"array",
+                                  "contains":{
+                                    "type":"string",
+                                    "const":"PermanentResidentCard"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                    ]
+                }
+            }
+         ]
+      }
+   ],
+   "interactServices":[
+      {
+         "type":"UnmediatedHttpPresentationService2021"
+      }
+   ],
+   "isOneTime":true,
+   "callback":[]
+}""";
+    // Fake Authority portal configure the SSI server for mediated issuance
+    String resConf =
+        await wf.configureCredentialExchange(client, issuanceFakeConfiguration);
+    var resConfJson = jsonDecode(resConf);
+    // Get the outofband exchange invitation for the mobile wallet
+    String credentialType = "";
+    String outOfBandInvitation = wf.authorityReturnExchangeInvitation(
+        issuanceFakeConfiguration, credentialType);
+    return outOfBandInvitation;
   }
 }

@@ -43,6 +43,7 @@ dependencies:
     git:
       url: https://github.com/X-SLAYER/qr_code_scanner
       ref: flutter-beta
+  overlay_support: ^2.0.0
 
 
 dev_dependencies:

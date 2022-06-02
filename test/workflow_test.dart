@@ -228,7 +228,7 @@ void main() {
         await wf.continueWithSignedPresentation(
             client, residentCardPresentation4P, serviceEndpoint4P);
     expect(endOfPresentationResponse[0] == "200", true);
-  }, skip: true);
+  }, skip: false);
 
   test("Test workflow issuance with workflow manager", () async {
     http.Client client = http.Client();
@@ -335,13 +335,11 @@ void main() {
         client, residentCardPresentation, serviceEndpoint);
     expect(jsonDecode(submitVPResult)['errors'].isEmpty, true);
     // Finish with worflow manager
-    String issuedCredential = await WorkflowManager()
+    VC issuedCredential = await WorkflowManager()
         .retreiveSignedVCFromAuthority(params, mobileAppDid);
-    var issuedCredentialJson = jsonDecode(issuedCredential);
-    VC vcToStoreByMA = VCService().parseGenericVC(
-        jsonEncode(issuedCredentialJson['vp']['verifiableCredential'][0]));
-    expect(vcToStoreByMA, isA<VC>());
-  }, skip: false);
+
+    expect(issuedCredential, isA<VC>());
+  }, skip: true);
   test("RealApi : presentation workflow unmediated", () async {}, skip: true);
   test("MockApi : presentation workflow unmediated", () {});
 }

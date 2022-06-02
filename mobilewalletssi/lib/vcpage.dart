@@ -3,7 +3,6 @@ import 'package:ssifrontendsuite/vc.dart';
 import 'package:ssifrontendsuite/vc_model.dart';
 import 'package:ssifrontendsuite/workflow_manager.dart';
 import 'data/dummy_vc.dart';
-import 'package:overlay_support/overlay_support.dart';
 
 // usage of flutter builder described in this tutorial
 // https://www.woolha.com/tutorials/flutter-using-futurebuilder-widget-examples
@@ -73,7 +72,7 @@ class _VCPageState extends State<VCPage> {
         title: Text(widget.title),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: () {
               refresh();
             },

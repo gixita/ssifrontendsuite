@@ -4,8 +4,6 @@ import 'vcpage.dart';
 import 'qrviewexample.dart';
 import 'ssiworkflow.dart';
 import 'vcdetailspage.dart';
-import 'selectvcs.dart';
-import 'receivevc.dart';
 
 class MobileWalletSSIElia extends StatelessWidget {
   const MobileWalletSSIElia({Key? key}) : super(key: key);
@@ -23,8 +21,6 @@ class MobileWalletSSIElia extends StatelessWidget {
         '/': (context) => const VCPage(title: 'SSI Wallet Elia Group'),
         '/qrcode': (context) => const QRViewExample(),
         '/ssiworkflow': (context) => const SSIWorkflowPage(),
-        '/selectvcs': (context) => const SelectVCsPage(),
-        '/receivevc': (context) => const ReceiveVCPage(),
         '/vcdetails': (context) =>
             const VCDetailsPage(title: 'Documents details'),
       },

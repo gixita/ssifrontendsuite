@@ -148,8 +148,6 @@ class SQLHelper {
 
   static Future<List<Map<String, dynamic>>> getAllVCs() async {
     final db = await SQLHelper.db();
-    int? countVC = firstIntValue(await db.rawQuery("SELECT count(*) from vcs"));
-    print(countVC);
     return await db.query('vcs', where: "1");
   }
 

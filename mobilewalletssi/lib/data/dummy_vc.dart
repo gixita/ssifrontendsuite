@@ -1,8 +1,5 @@
-import 'package:ssifrontendsuite/vc_model.dart';
-import 'package:ssifrontendsuite/vc_parsing.dart';
-import 'package:ssifrontendsuite/vc.dart';
-
 Future<bool> storeDummyVCS() async {
+  // ignore: unused_local_variable
   String vc1String = r"""{
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
@@ -42,6 +39,7 @@ Future<bool> storeDummyVCS() async {
     "expirationDate": "2029-12-03T12:19:52Z"
 }""";
 
+  // ignore: unused_local_variable
   String vc2String = r"""{
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
@@ -68,8 +66,8 @@ Future<bool> storeDummyVCS() async {
     },
     "expirationDate": "2029-12-03T12:19:52Z"
 }""";
-  VC vc1 = VCParsing().parseGenericVC(vc1String);
-  VC vc2 = VCParsing().parseGenericVC(vc2String);
+  // VC vc1 = VCParsing().parseGenericVC(vc1String);
+  // VC vc2 = VCParsing().parseGenericVC(vc2String);
   // await VCService().storeVC(vc1);
   // await VCService().storeVC(vc1);
   // await VCService().storeVC(vc1);

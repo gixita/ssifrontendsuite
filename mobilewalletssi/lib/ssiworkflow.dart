@@ -21,7 +21,7 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
   String errorMessage = "";
   String outOfBandInvitation = "";
   bool validateStartOfCommunication = false;
-  bool? present;
+  bool present = false;
   List<VC> selectVcs = [];
   List<int> selectedList = [];
   List<List<String>> paramsState = [[]];
@@ -114,6 +114,42 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
     }
   }
 
+  Widget signAndSendButton() {
+    if (present) {
+      if (selectedList.isNotEmpty) {
+        return ElevatedButton(
+          child: const Text("Sign and send"),
+          onPressed: () async {
+            Did holder = await DIDService().getDid();
+            await WorkflowManager()
+                .sendVCs(paramsState, holder, sendVCList)
+                .then((result) {
+              if (result) {
+                showSimpleNotification(
+                  const Text("Your documents are send"),
+                  background: Colors.green,
+                );
+                Navigator.of(context).pop();
+              } else {
+                showSimpleNotification(
+                  const Text("An error occured, please try again"),
+                  background: Colors.red,
+                );
+                Navigator.of(context).pop();
+              }
+            });
+          },
+        );
+      } else {
+        return const ElevatedButton(
+            onPressed: null, child: Text("Sign and send"));
+      }
+    }
+    return const SizedBox(
+      width: 1,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,32 +167,7 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
           requestStartValidation()
         else
           continueSSIWorkflow(),
-        selectedList.isNotEmpty
-            ? ElevatedButton(
-                child: const Text("Sign and send"),
-                onPressed: () async {
-                  Did holder = await DIDService().getDid();
-                  await WorkflowManager()
-                      .sendVCs(paramsState, holder, sendVCList)
-                      .then((result) {
-                    if (result) {
-                      showSimpleNotification(
-                        const Text("Your documents are send"),
-                        background: Colors.green,
-                      );
-                      Navigator.of(context).pop();
-                    } else {
-                      showSimpleNotification(
-                        const Text("An error occured, please try again"),
-                        background: Colors.red,
-                      );
-                      Navigator.of(context).pop();
-                    }
-                  });
-                },
-              )
-            : const ElevatedButton(
-                onPressed: null, child: Text("Sign and send"))
+        signAndSendButton(),
       ])),
     );
   }

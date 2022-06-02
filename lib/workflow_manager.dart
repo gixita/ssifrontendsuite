@@ -1,4 +1,3 @@
-import 'package:ssifrontendsuite/did.dart';
 import 'package:ssifrontendsuite/vc.dart';
 
 import 'did_model.dart';
@@ -48,8 +47,6 @@ class WorkflowManager {
         throw "The mobile could not authenticate on the server";
       }
     }
-    print("auth proof signed");
-    print(authProofSigned);
     return [
       currentWorflow,
       <String>[serviceEndpoint],
@@ -71,7 +68,6 @@ class WorkflowManager {
     List<String> testRetrieveCredential = <String>[];
     List<String> issuedCredential = <String>[];
     while (retry < 14) {
-      print("retry $retry before getting the issued cred");
       testRetrieveCredential = await wf.continueWithSignedPresentation(
           client, authProofSigned, serviceEndpoint);
       retry += 1;
@@ -82,8 +78,6 @@ class WorkflowManager {
       }
       await Future.delayed(const Duration(seconds: 1));
     }
-    print("issued cred");
-    print(issuedCredential[1]);
     var receivedVCJson = jsonDecode(issuedCredential[1]);
     VC receivedVC = VCService().parseGenericVC(
         jsonEncode(receivedVCJson['vp']['verifiableCredential'][0]));
@@ -110,13 +104,9 @@ class WorkflowManager {
 
     String unsignedPresentation = wf.fillInPresentationByMobileAppUnsigned(
         client, vcsToPresent, holder, currentWorkflow, challenge);
-    print("unsigned presentation----");
-    print(unsignedPresentation);
 
     String signedPresentation =
         await wf.provePresentation(client, unsignedPresentation);
-    print("signed presentation ----");
-    print(signedPresentation);
     List<String> endOfPresentationResponse =
         await wf.continueWithSignedPresentation(
             client, signedPresentation, serviceEndpoint);
@@ -172,19 +162,14 @@ class WorkflowManager {
         "proofPurpose": "assertionMethod"
     }
 }""";
-    print("before signing");
     VC vc = await wf.signVCOnAPSSIServer(client, residentCardUnsigned);
     List<VC> vcs = <VC>[vc];
-    print("before fill preseentation");
     String residentCardUnsignedPresentationFilled = wf
         .fillInPresentationForIssuanceUnsigned(client, vcs, authorityPortalDid);
-    print("before prove presentation");
     String residentCardPresentation = await wf.provePresentation(
         client, residentCardUnsignedPresentationFilled);
-    print("before review and submit");
     await wf.reviewAndSubmitPresentation(
         client, residentCardPresentation, serviceEndpoint);
-    print("after review and submit");
   }
 
   // Temporary method to configure server for issuance
@@ -214,9 +199,7 @@ class WorkflowManager {
     ]
 }""";
     // Fake Authority portal configure the SSI server for mediated issuance
-    String resConf =
-        await wf.configureCredentialExchange(client, issuanceFakeConfiguration);
-    var resConfJson = jsonDecode(resConf);
+    await wf.configureCredentialExchange(client, issuanceFakeConfiguration);
     // Get the outofband exchange invitation for the mobile wallet
     String credentialType = "PermanentResidentCard";
     String outOfBandInvitation = wf.authorityReturnExchangeInvitation(
@@ -276,9 +259,7 @@ class WorkflowManager {
    "callback":[]
 }""";
     // Fake Authority portal configure the SSI server for mediated issuance
-    String resConf =
-        await wf.configureCredentialExchange(client, issuanceFakeConfiguration);
-    var resConfJson = jsonDecode(resConf);
+    await wf.configureCredentialExchange(client, issuanceFakeConfiguration);
     // Get the outofband exchange invitation for the mobile wallet
     String credentialType = "";
     String outOfBandInvitation = wf.authorityReturnExchangeInvitation(

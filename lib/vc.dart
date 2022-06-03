@@ -13,13 +13,10 @@ class VCService {
   }
 
   Future<bool> storeIssuerLabel(String label, String did) async {
-    final db = await SQLHelper.db();
     return await SQLHelper.storeIssuerLabel(label, did);
   }
 
   Future<List<Map<String, dynamic>>> getIssuerLabel(String did) async {
-    final db = await SQLHelper.db();
-
     return await SQLHelper.getIssuerLabel(did);
   }
 

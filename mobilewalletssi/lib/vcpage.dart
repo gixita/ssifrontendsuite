@@ -84,7 +84,7 @@ class _VCPageState extends State<VCPage> {
       } else {
         return Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: [listViewVCs(vcs)]);
+            children: [Expanded(child: listViewVCs(vcs))]);
       }
     } else {
       return Column(

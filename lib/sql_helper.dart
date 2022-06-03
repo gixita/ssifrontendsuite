@@ -83,7 +83,6 @@ class SQLHelper {
     int? countDid = firstIntValue(
         await db.rawQuery("SELECT count(*) from issuers where did=\"$did\""));
     if (countDid! < 1) {
-      print("storing label");
       await db.insert('issuers', data);
       return true;
     } else {

@@ -43,4 +43,12 @@ class DIDService {
     await SQLHelper.createDid(did);
     return did;
   }
+
+  Future<Did> ensureDIDExists() async {
+    var didExist = await didExists();
+    if (didExist) {
+      return await getDid();
+    }
+    return await createDid();
+  }
 }

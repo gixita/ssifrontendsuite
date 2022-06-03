@@ -3,6 +3,7 @@ import 'package:ssifrontendsuite/vc.dart';
 import 'package:ssifrontendsuite/vc_model.dart';
 import 'package:ssifrontendsuite/workflow_manager.dart';
 import 'data/dummy_vc.dart';
+import 'package:ssifrontendsuite/sql_helper.dart';
 
 // usage of flutter builder described in this tutorial
 // https://www.woolha.com/tutorials/flutter-using-futurebuilder-widget-examples
@@ -60,9 +61,36 @@ class _VCPageState extends State<VCPage> {
 
   Future<void> refresh() async {
     List<VC> local = await VCService().getAllVCs();
+    final db = await SQLHelper.db();
+    for (var element in local) {
+      var label = await db.query('issuers',
+          where: "did = ?", whereArgs: [element.issuer], limit: 1);
+    }
+
     setState(() {
       vcs = local;
     });
+  }
+
+  Widget displayVCs() {
+    if (vcs != null) {
+      if (vcs.isEmpty) {
+        return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Flexible(
+                  child: Text("You don't have a verifiable credential yet"))
+            ]);
+      } else {
+        return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [listViewVCs(vcs)]);
+      }
+    } else {
+      return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [CircularProgressIndicator()]);
+    }
   }
 
   @override
@@ -81,16 +109,7 @@ class _VCPageState extends State<VCPage> {
       ),
       body: Center(
           child: Stack(
-        children: [
-          if (vcs != null)
-            Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [listViewVCs(vcs)])
-          else
-            Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [CircularProgressIndicator()])
-        ],
+        children: [displayVCs()],
       )),
       floatingActionButton:
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
@@ -133,6 +152,26 @@ class _VCPageState extends State<VCPage> {
     );
   }
 
+  Icon displayVCIcon(List<String> types) {
+    if (types.contains("PermanentResidentCard")) {
+      return const Icon(
+        Icons.person,
+        size: 40,
+      );
+    }
+    if (types.contains("Battery")) {
+      return const Icon(
+        Icons.battery_3_bar,
+        size: 40,
+      );
+    }
+
+    return const Icon(
+      Icons.album,
+      size: 40,
+    );
+  }
+
   ListView listViewVCs(List<VC> vcList) {
     return ListView.builder(
         scrollDirection: Axis.vertical,
@@ -145,7 +184,7 @@ class _VCPageState extends State<VCPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   ListTile(
-                    leading: const Icon(Icons.album),
+                    leading: displayVCIcon(vcList[index].type),
                     title: Text(vcList[index].type.join(", ").toString()),
                     subtitle: Text('Issuer: ${vcList[index].issuer}'),
                   ),

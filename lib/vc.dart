@@ -12,6 +12,17 @@ class VCService {
     return vc;
   }
 
+  Future<bool> storeIssuerLabel(String label, String did) async {
+    final db = await SQLHelper.db();
+    return await SQLHelper.storeIssuerLabel(label, did);
+  }
+
+  Future<List<Map<String, dynamic>>> getIssuerLabel(String did) async {
+    final db = await SQLHelper.db();
+
+    return await SQLHelper.getIssuerLabel(did);
+  }
+
   Future<VC> getVCById(int id) async {
     List<Map<String, dynamic>> vcListOfMap = await SQLHelper.getVCById(id);
     VC vc;
@@ -37,7 +48,13 @@ class VCService {
     List<Map<String, dynamic>> vcList = await SQLHelper.getAllVCs();
     List<VC> vcListToReturn = <VC>[];
     for (var element in vcList) {
-      vcListToReturn.add(VCService().parseGenericVC(element['rawVC']));
+      var vc = VCService().parseGenericVC(element['rawVC']);
+      List<Map<String, dynamic>> issuerData =
+          await SQLHelper.getIssuerLabel(vc.issuer);
+      if (issuerData.isNotEmpty) {
+        vc.issuer = issuerData[0]['label'];
+      }
+      vcListToReturn.add(vc);
     }
     return vcListToReturn;
   }

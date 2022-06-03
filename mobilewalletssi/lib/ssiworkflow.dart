@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobilewallet/ssi.dart';
 import 'package:ssifrontendsuite/vc.dart';
 import 'package:ssifrontendsuite/vc_model.dart';
 import 'package:ssifrontendsuite/did.dart';
@@ -33,6 +32,82 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
     validateStartOfCommunication = false;
   }
 
+  // common logic for exchange
+  Future<List<List<String>>> getParams(
+      String outOfBandInvitation, Did holder) async {
+    return await WorkflowManager()
+        .startExchangeSSI(outOfBandInvitation, holder);
+  }
+
+  Widget requestStartValidation() {
+    return Column(
+      children: [
+        Container(
+            padding: const EdgeInsets.all(20),
+            child: const Text(
+              "You are starting a document exchange, you will disclose your identity to the host. Do you want to proceed?",
+              textAlign: TextAlign.center,
+            )),
+        const SizedBox(
+          height: 10,
+        ),
+        ElevatedButton(
+            onPressed: () {
+              outOfBandInvitation =
+                  ModalRoute.of(context)!.settings.arguments as String;
+              ssiWorkflowMethod();
+              setState(() {
+                validateStartOfCommunication = true;
+              });
+            },
+            child: const Text("Proceed"))
+      ],
+    );
+  }
+
+  Future<void> ssiWorkflowMethod() async {
+    WorkflowManager wfm = WorkflowManager();
+    VCService vcService = VCService();
+    try {
+      Did holder = await DIDService().ensureDIDExists();
+      List<List<String>> params = await getParams(outOfBandInvitation, holder);
+      List<String> currentWorkflow = params[0];
+      String serviceEndpoint = params[1][0];
+      if (currentWorkflow.contains("present")) {
+        var local = await getCompatibleVCs(params);
+        setState(() {
+          selectVcs = local;
+          present = true;
+          paramsState = params;
+        });
+      } else if (currentWorkflow.contains("issue")) {
+        await wfm.authorityPortalIssueVC(serviceEndpoint, holder);
+        VC receivedVC = await wfm.retreiveSignedVCFromAuthority(params, holder);
+        await vcService.storeVC(receivedVC).then((vc) async {
+          showSimpleNotification(
+            const Text("You received a new vc"),
+            background: Colors.green,
+          );
+          await VCService().getIssuerLabel(vc.issuer).then((label) {
+            if (label.isNotEmpty) {
+              Navigator.of(context).pop();
+            } else {
+              Navigator.pushNamed(context, '/didlabel', arguments: vc.issuer);
+            }
+          });
+        });
+      } else {
+        throw "This workflow type is not supported yet";
+      }
+      setState(() {});
+    } catch (error) {
+      setState(() {
+        errorMessage = "$error";
+      });
+    }
+  }
+
+  // logic for presentation
   void selectItem(int index) {
     setState(() {
       if (!selectedList.contains(index)) {
@@ -49,69 +124,6 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
 
   Future<List<VC>> getCompatibleVCs(List<List<String>> params) async {
     return await WorkflowManager().selectVCs(params);
-  }
-
-  Future<void> ssiWorkflowMethod() async {
-    WorkflowManager wfm = WorkflowManager();
-    VCService vcService = VCService();
-    try {
-      Did holder = await ensureDIDExists();
-      List<List<String>> params = await getParams(outOfBandInvitation, holder);
-      List<String> currentWorkflow = params[0];
-      String serviceEndpoint = params[1][0];
-      if (currentWorkflow.contains("present")) {
-        var local = await getCompatibleVCs(params);
-        setState(() {
-          selectVcs = local;
-          present = true;
-          paramsState = params;
-        });
-      } else if (currentWorkflow.contains("issue")) {
-        await wfm.authorityPortalIssueVC(serviceEndpoint, holder);
-        VC receivedVC = await wfm.retreiveSignedVCFromAuthority(params, holder);
-        await vcService.storeVC(receivedVC).then((vc) {
-          showSimpleNotification(
-            const Text("You received a new vc"),
-            background: Colors.green,
-          );
-          Navigator.of(context).pop();
-        });
-      } else {
-        throw "This workflow type is not supported yet";
-      }
-      setState(() {});
-    } catch (error) {
-      setState(() {
-        errorMessage = "$error";
-      });
-    }
-  }
-
-  Widget requestStartValidation() {
-    return Column(
-      children: [
-        const Text(
-            "You are starting a document exchange, you will disclose your identity to the host. Do you want to proceed?"),
-        ElevatedButton(
-            onPressed: () {
-              outOfBandInvitation =
-                  ModalRoute.of(context)!.settings.arguments as String;
-              ssiWorkflowMethod();
-              setState(() {
-                validateStartOfCommunication = true;
-              });
-            },
-            child: const Text("proceed"))
-      ],
-    );
-  }
-
-  Widget continueSSIWorkflow() {
-    if (present == false) {
-      return const CircularProgressIndicator();
-    } else {
-      return generateVCListForSelection(selectVcs, paramsState, context);
-    }
   }
 
   Widget signAndSendButton() {
@@ -149,6 +161,27 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
       width: 1,
     );
   }
+  // logic for issuance
+
+  Widget continueSSIWorkflow() {
+    if (present == false) {
+      return const CircularProgressIndicator();
+    } else {
+      return generateVCListForSelection(selectVcs, paramsState, context);
+    }
+  }
+
+  String appBarTitle() {
+    if (paramsState.isNotEmpty) {
+      List<String> currentWorkflow = paramsState[0];
+      if (currentWorkflow.contains("present")) {
+        return "Present documents";
+      } else if (currentWorkflow.contains("issue")) {
+        return "Receive new documents";
+      }
+    }
+    return "Start document exchange";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +192,7 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
               Navigator.popUntil(context, ModalRoute.withName('/')),
           icon: const Icon(Icons.arrow_back),
         ),
-        title: const Text("Select documents to send"),
+        title: Text(appBarTitle()),
       ),
       body: Center(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -170,12 +203,6 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
         signAndSendButton(),
       ])),
     );
-  }
-
-  Future<List<List<String>>> getParams(
-      String outOfBandInvitation, Did holder) async {
-    return await WorkflowManager()
-        .startExchangeSSI(outOfBandInvitation, holder);
   }
 
   Widget generateVCListForSelection(
@@ -213,52 +240,4 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
               );
             }));
   }
-
-  // FutureBuilder<List<List<String>>> startSSIWorkflow(
-  //     String outOfBandInvitation) {
-  //   return FutureBuilder<List<List<String>>>(
-  //     future: getParams(outOfBandInvitation),
-  //     builder: (
-  //       BuildContext context,
-  //       AsyncSnapshot<List<List<String>>> snapshot,
-  //     ) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         return const CircularProgressIndicator();
-  //       } else if (snapshot.connectionState == ConnectionState.done) {
-  //         if (snapshot.hasError) {
-  //           return const Text('Error');
-  //         } else if (snapshot.hasData) {
-  //           if (snapshot.data != null) {
-  //             List<String> currentWorkflow = snapshot.data![0];
-  //             if (currentWorkflow.contains("present")) {
-  //               return ElevatedButton(
-  //                   onPressed: () {
-  //                     Navigator.pushNamed(context, '/selectvcs',
-  //                         arguments: snapshot.data);
-  //                   },
-  //                   child: const Text("continue"));
-  //             } else {
-  //               return ElevatedButton(
-  //                   onPressed: () {
-  //                     Navigator.pushNamed(context, '/receivevc',
-  //                         arguments: snapshot.data);
-  //                   },
-  //                   child: const Text("continue"));
-  //               // Future.delayed(Duration(seconds: 1), () {
-  //               //   Navigator.pushNamed(context, '/receiveVC');
-  //               // });
-  //               // return const Text("");
-  //             }
-  //           }
-  //           return const Text("No vc to display");
-  //           // return generateCards(snapshot.data);
-  //         } else {
-  //           return const Text('Empty data');
-  //         }
-  //       } else {
-  //         return Text('State: ${snapshot.connectionState}');
-  //       }
-  //     },
-  //   );
-  // }
 }

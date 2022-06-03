@@ -33,6 +33,13 @@ class SQLHelper {
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       )
       """);
+    await database.execute("""CREATE TABLE issuers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        did TEXT,
+        label TEXT,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+      """);
   }
 
   static Future<sql.Database> db() async {
@@ -65,6 +72,30 @@ class SQLHelper {
     }
     final id = await db.insert('dids', data);
     return id;
+  }
+
+  static Future<bool> storeIssuerLabel(String label, String did) async {
+    final db = await SQLHelper.db();
+    final data = {
+      'did': did,
+      'label': label,
+    };
+    int? countDid = firstIntValue(
+        await db.rawQuery("SELECT count(*) from issuers where did=\"$did\""));
+    if (countDid! < 1) {
+      print("storing label");
+      await db.insert('issuers', data);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getIssuerLabel(String did) async {
+    final db = await SQLHelper.db();
+
+    return await db.query('issuers',
+        where: "did = ?", whereArgs: [did], limit: 1);
   }
 
   static Future<List<Map<String, dynamic>>> getDids() async {

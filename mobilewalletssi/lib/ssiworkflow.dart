@@ -68,43 +68,43 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
   Future<void> ssiWorkflowMethod() async {
     WorkflowManager wfm = WorkflowManager();
     VCService vcService = VCService();
-    try {
-      Did holder = await DIDService().ensureDIDExists();
-      List<List<String>> params = await getParams(outOfBandInvitation, holder);
-      List<String> currentWorkflow = params[0];
-      String serviceEndpoint = params[1][0];
-      if (currentWorkflow.contains("present")) {
-        var local = await getCompatibleVCs(params);
-        setState(() {
-          selectVcs = local;
-          present = true;
-          paramsState = params;
-        });
-      } else if (currentWorkflow.contains("issue")) {
-        await wfm.authorityPortalIssueVC(serviceEndpoint, holder);
-        VC receivedVC = await wfm.retreiveSignedVCFromAuthority(params, holder);
-        await vcService.storeVC(receivedVC).then((vc) async {
-          showSimpleNotification(
-            const Text("You received a new vc"),
-            background: Colors.green,
-          );
-          await VCService().getIssuerLabel(vc.issuer).then((label) {
-            if (label.isNotEmpty) {
-              Navigator.of(context).pop();
-            } else {
-              Navigator.pushNamed(context, '/didlabel', arguments: vc.issuer);
-            }
-          });
-        });
-      } else {
-        throw "This workflow type is not supported yet";
-      }
-      setState(() {});
-    } catch (error) {
+    // try {
+    Did holder = await DIDService().ensureDIDExists();
+    List<List<String>> params = await getParams(outOfBandInvitation, holder);
+    List<String> currentWorkflow = params[0];
+    String serviceEndpoint = params[1][0];
+    if (currentWorkflow.contains("present")) {
+      var local = await getCompatibleVCs(params);
       setState(() {
-        errorMessage = "$error";
+        selectVcs = local;
+        present = true;
+        paramsState = params;
       });
+    } else if (currentWorkflow.contains("issue")) {
+      await wfm.authorityPortalIssueVC(serviceEndpoint, holder);
+      VC receivedVC = await wfm.retreiveSignedVCFromAuthority(params, holder);
+      await vcService.storeVC(receivedVC).then((vc) async {
+        showSimpleNotification(
+          const Text("You received a new vc"),
+          background: Colors.green,
+        );
+        await VCService().getIssuerLabel(vc.issuer).then((label) {
+          if (label.isNotEmpty) {
+            Navigator.of(context).pop();
+          } else {
+            Navigator.pushNamed(context, '/didlabel', arguments: vc.issuer);
+          }
+        });
+      });
+    } else {
+      throw "This workflow type is not supported yet";
     }
+    setState(() {});
+    // } catch (error) {
+    //   setState(() {
+    //     errorMessage = "$error";
+    //   });
+    // }
   }
 
   // logic for presentation

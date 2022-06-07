@@ -3,7 +3,6 @@ import 'package:portalserver/common/exceptions/argument_exception.dart';
 import 'package:portalserver/common/exceptions/not_found_exception.dart';
 import 'package:portalserver/users/model/user.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common/sqlite_api.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
@@ -30,7 +29,7 @@ class UsersService {
     final result = await db.insert(usersTable, <String, Object?>{
       'username': username,
       'email': email,
-      'password_hash': password
+      'password_hash': digest
     });
 
     final userInserted =

@@ -1,3 +1,4 @@
+import 'package:ssifrontendsuite/sql_helper.dart';
 import 'package:test/test.dart';
 import 'package:ssifrontendsuite/did.dart';
 import 'package:ssifrontendsuite/did_http.dart';
@@ -34,6 +35,11 @@ void main() {
   // }, skip: true);
 
   // Run the test against the real API
+
+  test('Test db', () async {
+    await SQLHelper.db();
+    expect(true, true);
+  }, skip: false);
   test('Real API call for DID creation', () async {
     final didHttp = DIDHttpService();
     final did = await didHttp.getNewDid(http.Client());

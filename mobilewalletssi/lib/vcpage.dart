@@ -23,6 +23,7 @@ class _VCPageState extends State<VCPage> {
   String outOfBandPresentationInvitation = "";
 
   Future<bool> storeInDb() async {
+    await SQLHelper.db();
     await storeDummyVCS();
     List<VC> localvcs = await VCService().getAllVCs();
     String localOutOfBandIssuanceInvitation =
@@ -49,9 +50,7 @@ class _VCPageState extends State<VCPage> {
   void initState() {
     super.initState();
     vcs = null;
-    // SQLHelper.db(); // Loading the diary when the app starts
     storeInDb();
-    refresh();
   }
 
   Future<List<VC>> reload() async {
@@ -61,12 +60,6 @@ class _VCPageState extends State<VCPage> {
 
   Future<void> refresh() async {
     List<VC> local = await VCService().getAllVCs();
-    final db = await SQLHelper.db();
-    for (var element in local) {
-      var label = await db.query('issuers',
-          where: "did = ?", whereArgs: [element.issuer], limit: 1);
-    }
-
     setState(() {
       vcs = local;
     });

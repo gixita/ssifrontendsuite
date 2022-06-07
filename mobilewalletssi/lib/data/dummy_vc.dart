@@ -1,5 +1,8 @@
+// ignore: unused_import
 import 'package:ssifrontendsuite/vc.dart';
+// ignore: unused_import
 import 'package:ssifrontendsuite/vc_parsing.dart';
+// ignore: unused_import
 import 'package:ssifrontendsuite/vc_model.dart';
 
 Future<bool> storeDummyVCS() async {
@@ -72,8 +75,8 @@ Future<bool> storeDummyVCS() async {
 }""";
   VC vc1 = VCParsing().parseGenericVC(vc1String);
   VC vc2 = VCParsing().parseGenericVC(vc2String);
-  // await VCService().storeVC(vc1);
-  // await VCService().storeVC(vc1);
+  await VCService().storeVC(vc1);
+  await VCService().storeVC(vc1);
   // await VCService().storeVC(vc1);
   // await VCService().storeVC(vc1);
   // await VCService().storeVC(vc1);

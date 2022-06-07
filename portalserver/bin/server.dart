@@ -15,7 +15,6 @@ import 'package:dotenv/dotenv.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:sqflite_common/sqlite_api.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 Future main(List<String> args) async {
   var environment = Platform.environment['ENVIRONMENT'] ?? 'local';

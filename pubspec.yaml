@@ -10,10 +10,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sqflite: ^2.0.2+1
+  sqlite3_flutter_libs: ^0.5.7
   http: ^0.13.4
   build_runner: ^2.1.10
-  sqflite_common_ffi: ^2.1.1
+  sqlite_wrapper: ^0.0.8
+  path_provider: ^2.0.11
+
+  
 
 dev_dependencies:
   flutter_test:

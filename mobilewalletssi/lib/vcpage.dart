@@ -63,8 +63,7 @@ class _VCPageState extends State<VCPage> {
     List<VC> local = await VCService().getAllVCs();
     final db = await SQLHelper.db();
     for (var element in local) {
-      var label = await db.query('issuers',
-          where: "did = ?", whereArgs: [element.issuer], limit: 1);
+      var label = SQLHelper.getIssuerLabel(element.issuer.toString());
     }
 
     setState(() {

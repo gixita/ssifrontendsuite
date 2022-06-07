@@ -72,14 +72,14 @@ Future<bool> storeDummyVCS() async {
 }""";
   VC vc1 = VCParsing().parseGenericVC(vc1String);
   VC vc2 = VCParsing().parseGenericVC(vc2String);
-  await VCService().storeVC(vc1);
-  await VCService().storeVC(vc1);
-  await VCService().storeVC(vc1);
-  await VCService().storeVC(vc1);
-  await VCService().storeVC(vc1);
-  await VCService().storeVC(vc2);
-  await VCService().storeVC(vc1);
-  await VCService().storeVC(vc1);
-  await VCService().storeVC(vc2);
+  // await VCService().storeVC(vc1);
+  // await VCService().storeVC(vc1);
+  // await VCService().storeVC(vc1);
+  // await VCService().storeVC(vc1);
+  // await VCService().storeVC(vc1);
+  // await VCService().storeVC(vc2);
+  // await VCService().storeVC(vc1);
+  // await VCService().storeVC(vc1);
+  // await VCService().storeVC(vc2);
   return true;
 }

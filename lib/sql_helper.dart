@@ -67,24 +67,7 @@ class SQLHelper {
     debugPrint("Database path: ${dbInfo.path}");
   }
 
-  // static Future<sql.Database> db() async {
-  //   sqfliteFfiInit();
-
-  //   var databaseFactory = databaseFactoryFfi;
-  //   var db = await databaseFactory.openDatabase(inMemoryDatabasePath);
-
-  //   return openDatabase(
-  //     sql.inMemoryDatabasePath,
-  //     // 'kindacode.db',
-  //     version: 1,
-  //     onCreate: (sql.Database database, int version) async {
-  //       await createTables(database);
-  //     },
-  //   );
-  // }
-
   static Future<int> createDid(Did did) async {
-    // final db = await SQLHelper.db();
     final data = {
       'did': did.id,
       'verification_method': did.verificationMethod[0].id,
@@ -105,7 +88,6 @@ class SQLHelper {
   }
 
   static Future<bool> storeIssuerLabel(String label, String did) async {
-    // final db = await SQLHelper.db();
     final data = {
       'did': did,
       'label': label,
@@ -122,19 +104,15 @@ class SQLHelper {
   }
 
   static Future<List<Map<String, dynamic>>> getIssuerLabel(String did) async {
-    // final db = await SQLHelper.db();
-
     return await SQLiteWrapper()
         .query("SELECT * from issuers where did = '$did' limit 1");
   }
 
   static Future<List<Map<String, dynamic>>> getDids() async {
-    // final db = await SQLHelper.db();
     return await SQLiteWrapper().query("SELECT * from dids where 1");
   }
 
   static Future<List<Map<String, dynamic>>> getDid() async {
-    // final db = await SQLHelper.db();
     int? countDid = await SQLiteWrapper()
         .query("SELECT count(*) from dids", singleResult: true);
     if (countDid! < 1) {
@@ -145,7 +123,6 @@ class SQLHelper {
   }
 
   static Future<bool> didExists() async {
-    // final db = await SQLHelper.db();
     int? countDid = await SQLiteWrapper()
         .query("SELECT count(*) from dids", singleResult: true);
     if (countDid! < 1) {
@@ -156,7 +133,6 @@ class SQLHelper {
 
   // static Future<int> updateItem(
   //     int id, String title, String? descrption) async {
-  //   final db = await SQLHelper.db();
 
   //   final data = {
   //     'title': title,
@@ -170,7 +146,6 @@ class SQLHelper {
   // }
 
   static Future<void> deleteAllDid() async {
-    // final db = await SQLHelper.db();
     // try {
     //   await db.delete("dids", where: "1");
     // } catch (err) {
@@ -199,32 +174,27 @@ class SQLHelper {
   }
 
   static Future<List<Map<String, dynamic>>> getVCById(int id) async {
-    // final db = await SQLHelper.db();
     return await SQLiteWrapper()
         .query("SELECT * from vcs where id = $id limit 1");
   }
 
   static Future<List<Map<String, dynamic>>> getReceivedVCs(String myDid) async {
-    // final db = await SQLHelper.db();
     return await SQLiteWrapper()
         .query("SELECT * from vcs where issuer = '$myDid'");
   }
 
   static Future<List<Map<String, dynamic>>> getAllVCs() async {
-    // final db = await SQLHelper.db();
     return await SQLiteWrapper().query("SELECT * from vcs where 1");
   }
 
   static Future<List<Map<String, dynamic>>> getSelfSignedVCs(
       String myDid) async {
-    // final db = await SQLHelper.db();
     return await SQLiteWrapper()
         .query("SELECT * from vcs where issuer = '$myDid'");
   }
 
   static Future<List<Map<String, dynamic>>> getVCsByTypes(
       List<String> types) async {
-    // final db = await SQLHelper.db();
     String typeString = "";
     if (types.isNotEmpty) {
       typeString = "'${types[0]}'";

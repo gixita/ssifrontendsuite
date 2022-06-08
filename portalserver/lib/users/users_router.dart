@@ -126,43 +126,43 @@ class UsersRouter {
   }
 
   Future<Response> _updateUserHandler(Request request) async {
-    final user = request.context['user'] as User;
+    // final user = request.context['user'] as User;
 
-    final requestBody = await request.readAsString();
-    final requestData = json.decode(requestBody);
+    // final requestBody = await request.readAsString();
+    // final requestData = json.decode(requestBody);
 
-    final userData = requestData['user'];
-    final username = userData['username'];
-    final emailForUpdate = userData['email'];
-    final password = userData['password'];
-    final bio = userData['bio'];
-    final image = userData['image'];
+    // final userData = requestData['user'];
+    // final username = userData['username'];
+    // final emailForUpdate = userData['email'];
+    // final password = userData['password'];
+    // final bio = userData['bio'];
+    // final image = userData['image'];
 
-    User updatedUser;
+    // User updatedUser;
 
     try {
-      updatedUser = await usersService.updateUserByEmail(user.email,
-          username: username,
-          emailForUpdate: emailForUpdate,
-          password: password,
-          bio: bio,
-          image: image);
+      // updatedUser = await usersService.updateUserByEmail(user.email,
+      //     username: username,
+      //     emailForUpdate: emailForUpdate,
+      //     password: password,
+      //     bio: bio,
+      //     image: image);
     } on ArgumentException catch (e) {
       return Response(422, body: jsonEncode(ErrorDto(errors: [e.message])));
     } on AlreadyExistsException catch (e) {
       return Response(409, body: jsonEncode(ErrorDto(errors: [e.message])));
     }
 
-    final token = jwtService.getToken(updatedUser.email);
+    // final token = jwtService.getToken(updatedUser.email);
 
-    final userDto = UserDto(
-        username: updatedUser.username,
-        email: updatedUser.email,
-        token: token,
-        bio: updatedUser.bio,
-        image: updatedUser.image);
+    // final userDto = UserDto(
+    //     username: updatedUser.username,
+    //     email: updatedUser.email,
+    //     token: token,
+    //     bio: updatedUser.bio,
+    //     image: updatedUser.image);
 
-    return Response.ok(jsonEncode(userDto));
+    return Response.ok(jsonEncode({}));
   }
 
   Future<Response> hello(Request req) async {
@@ -173,7 +173,8 @@ class UsersRouter {
     final router = Router();
 
     router.post('/users', _registerUserHandler);
-    router.get('/hello', hello);
+    router.get('/hello',
+        Pipeline().addMiddleware(authProvider.requireAuth()).addHandler(hello));
 
     router.post('/users/login', _loginUserHandler);
 

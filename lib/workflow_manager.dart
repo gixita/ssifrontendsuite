@@ -173,11 +173,13 @@ class WorkflowManager {
   }
 
   // Temporary method to configure server for issuance
-  Future<String> getOutOfBandIssuanceInvitation() async {
+  Future<String> getOutOfBandIssuanceInvitation(
+      {String exchangeId = ""}) async {
     http.Client client = http.Client();
     Workflow wf = Workflow();
-
-    String uuidEchangeId = wf.generateRandomEchangeId();
+    final String uuidEchangeId =
+        exchangeId != "" ? exchangeId : wf.generateRandomEchangeId();
+    // String uuidEchangeId = wf.generateRandomEchangeId();
     String issuanceFakeConfiguration = """{
     "exchangeId": "$uuidEchangeId",
     "query": [
@@ -256,7 +258,9 @@ class WorkflowManager {
       }
    ],
    "isOneTime":true,
-   "callback":[]
+   "callback":[{
+        "url": "https://ptsv2.com/t/uuu96-1653299746/post"
+      }]
 }""";
     // Fake Authority portal configure the SSI server for mediated issuance
     await wf.configureCredentialExchange(client, issuanceFakeConfiguration);

@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:sqlite_wrapper/sqlite_wrapper.dart';
 import 'did_model.dart';
 import 'vc_model.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
+// import 'package:path/path.dart' as p;
+// import 'package:path_provider/path_provider.dart';
 
 class SQLHelper {
   static final SQLHelper _singleton = SQLHelper._internal();
@@ -48,23 +48,48 @@ class SQLHelper {
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       )
       """);
+    await SQLiteWrapper().execute("""CREATE TABLE users(
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        username TEXT,
+        email TEXT,
+        password_hash TEXT,
+        bio TEXT,
+        image TEXT,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )""");
+    await SQLiteWrapper().execute("""CREATE TABLE unsignedvcs(
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        email TEXT,
+        unsignedvcs TEXT,
+        userid INTEGER,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )""");
+    await SQLiteWrapper().execute("""CREATE TABLE exchangeids(
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        vc_id INTEGER,
+        exchangeid TEXT,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )""");
   }
 
-  static db({inMemory = true}) async {
+  static Future<SQLiteWrapper> db({inMemory = true}) async {
     String dbPath = inMemoryDatabasePath;
     if (!inMemory) {
-      final docDir = await getApplicationDocumentsDirectory();
-      if (!await docDir.exists()) {
-        await docDir.create(recursive: true);
-      }
-      dbPath = p.join(docDir.path, "todoDatabase3.sqlite");
+      // final docDir = await getApplicationDocumentsDirectory();
+      // if (!await docDir.exists()) {
+      //   await docDir.create(recursive: true);
+      // }
+      // dbPath = p.join(docDir.path, "TADADatabase3.sqlite");
     }
-    final DatabaseInfo dbInfo =
-        await SQLiteWrapper().openDB(dbPath, version: 1, onCreate: () async {
+    // final DatabaseInfo dbInfo =
+    await SQLiteWrapper().openDB(dbPath, version: 1, onCreate: () async {
       await createTables();
     });
     // Print where the database is stored
-    debugPrint("Database path: ${dbInfo.path}");
+    return SQLiteWrapper();
   }
 
   static Future<int> createDid(Did did) async {

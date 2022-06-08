@@ -18,7 +18,7 @@ class VCPage extends StatefulWidget {
 
 class _VCPageState extends State<VCPage> {
   String errorMessage = "";
-  var vcs;
+  List<VC> vcs = [];
   String outOfBandIssuanceInvitation = "";
   String outOfBandPresentationInvitation = "";
 
@@ -49,7 +49,7 @@ class _VCPageState extends State<VCPage> {
   @override
   void initState() {
     super.initState();
-    vcs = null;
+    vcs = [];
     storeInDb();
   }
 
@@ -66,23 +66,16 @@ class _VCPageState extends State<VCPage> {
   }
 
   Widget displayVCs() {
-    if (vcs != null) {
-      if (vcs.isEmpty) {
-        return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Flexible(
-                  child: Text("You don't have a verifiable credential yet"))
-            ]);
-      } else {
-        return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [Expanded(child: listViewVCs(vcs))]);
-      }
-    } else {
+    if (vcs.isEmpty) {
       return Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [CircularProgressIndicator()]);
+          children: const [
+            Flexible(child: Text("You don't have a verifiable credential yet"))
+          ]);
+    } else {
+      return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [Expanded(child: listViewVCs(vcs))]);
     }
   }
 
@@ -123,7 +116,7 @@ class _VCPageState extends State<VCPage> {
                       arguments: outOfBandIssuanceInvitation)
                   .then((T) {
                 setState(() {
-                  vcs = null;
+                  vcs = [];
                 });
                 refresh();
               });

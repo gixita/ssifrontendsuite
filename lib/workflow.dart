@@ -143,7 +143,7 @@ class Workflow {
     return <String>[];
   }
 
-  // TODO update the code to grab the vc type from the exchange definition
+  // TADA update the code to grab the vc type from the exchange definition
   List<String> getTypesFromExchangeDefinition(String exchangeDefinition) {
     return <String>["VerifiableCredential"];
   }

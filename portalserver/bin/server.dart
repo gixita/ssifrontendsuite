@@ -2,19 +2,18 @@ import 'dart:async';
 import 'dart:io';
 //https://github.com/marcusmonteirodesouza/dart-shelf-realworld-example-app/blob/master/bin/server.dart
 import 'package:portalserver/api_router.dart';
-// import 'package:portalserver/articles/articles_router.dart';
-// import 'package:portalserver/articles/articles_service.dart';
+import 'package:portalserver/unsignedvcs/unsignedvcs_router.dart';
+import 'package:portalserver/unsignedvcs/unsignedvcs_service.dart';
 import 'package:portalserver/common/middleware/auth.dart';
-import 'package:portalserver/initdabase.dart';
-// import 'package:portalserver/profiles/profiles_router.dart';
-// import 'package:portalserver/profiles/profiles_service.dart';
+
 import 'package:portalserver/users/jwt_service.dart';
 import 'package:portalserver/users/users_router.dart';
 import 'package:portalserver/users/users_service.dart';
 import 'package:dotenv/dotenv.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
-import 'package:sqflite_common/sqlite_api.dart';
+import 'package:sqlite_wrapper/sqlite_wrapper.dart';
+import 'package:ssifrontendsuite/sql_helper.dart';
 
 Future main(List<String> args) async {
   var environment = Platform.environment['ENVIRONMENT'] ?? 'local';
@@ -36,14 +35,12 @@ Future main(List<String> args) async {
     throw StateError('Environment variable AUTH_ISSUER is required');
   }
 
-  Database db = await InitDabase.db();
+  SQLiteWrapper db = await SQLHelper.db();
 
   final usersService = UsersService(db: db);
   final jwtService = JwtService(issuer: authIssuer, secretKey: authSecretKey);
-  // final profilesService = ProfilesService(
-  //     connectionPool: connectionPool, usersService: usersService);
-  // final articlesService = ArticlesService(
-  //     connectionPool: connectionPool, usersService: usersService);
+  final unsignedVCSService =
+      UnsignedVCSService(db: db, usersService: usersService);
 
   final authProvider =
       AuthProvider(usersService: usersService, jwtService: jwtService);
@@ -52,21 +49,17 @@ Future main(List<String> args) async {
       usersService: usersService,
       jwtService: jwtService,
       authProvider: authProvider);
-  // final profilesRouter = ProfilesRouter(
-  //     profilesService: profilesService,
-  //     usersService: usersService,
-  //     authProvider: authProvider);
-  // final articlesRouter = ArticlesRouter(
-  //     articlesService: articlesService,
-  //     usersService: usersService,
-  //     profilesService: profilesService,
-  //     authProvider: authProvider);
+
+  final unsignedVCSRouter = UnsignedVCSRouter(
+      unsignedVCSService: unsignedVCSService,
+      usersService: usersService,
+      authProvider: authProvider);
 
   final apiRouter = ApiRouter(
-    usersRouter: usersRouter,
-    // profilesRouter: profilesRouter,
-    // articlesRouter: articlesRouter
-  ).router;
+          usersRouter: usersRouter,
+          // profilesRouter: profilesRouter,
+          unsignedVCSRouter: unsignedVCSRouter)
+      .router;
 
   // Configure a pipeline that logs requests.
   final handler = Pipeline().addMiddleware(logRequests()).addHandler(apiRouter);
@@ -80,7 +73,7 @@ Future main(List<String> args) async {
 
   await terminateRequestFuture();
 
-  await db.close();
+  // await db.close();
 
   await server.close();
 }

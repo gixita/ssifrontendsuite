@@ -1,16 +1,15 @@
 import 'package:portalserver/common/exceptions/already_exists_exception.dart';
 import 'package:portalserver/common/exceptions/argument_exception.dart';
-import 'package:portalserver/common/exceptions/not_found_exception.dart';
 import 'package:portalserver/users/model/user.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:sqflite_common/sqlite_api.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
+import 'package:sqlite_wrapper/sqlite_wrapper.dart';
 
 class UsersService {
   static String usersTable = 'users';
 
-  final Database db;
+  final SQLiteWrapper db;
 
   UsersService({required this.db});
 
@@ -25,15 +24,15 @@ class UsersService {
     _validatePasswordOrThrow(password);
 
     final digest = sha256.convert(utf8.encode(password)).toString();
-
-    final result = await db.insert(usersTable, <String, Object?>{
+    print(digest);
+    final result = await db.insert(<String, Object?>{
       'username': username,
       'email': email,
       'password_hash': digest
-    });
+    }, usersTable);
 
     final userInserted =
-        await db.query(usersTable, where: "id = $result", limit: 1);
+        await db.query("SELECT * from $usersTable where id = $result limit 1");
 
     final userId = userInserted[0]['id'];
     final createdAt = userInserted[0]['createdAt'];
@@ -48,8 +47,8 @@ class UsersService {
   }
 
   Future<User?> getUserById(String userId) async {
-    final result = await db.query(usersTable,
-        where: "id = ?", whereArgs: [userId], limit: 1);
+    final result = await db
+        .query("SELECT * from $usersTable where id = '$userId' limit 1");
 
     if (result.isEmpty) {
       return null;
@@ -75,8 +74,8 @@ class UsersService {
   }
 
   Future<User?> getUserByEmail(String email) async {
-    final result = await db.query(usersTable,
-        where: "email = ?", whereArgs: [email], limit: 1);
+    final result = await db
+        .query("SELECT * from $usersTable where email = '$email' limit 1");
     if (result.isEmpty) {
       return null;
     }
@@ -87,11 +86,10 @@ class UsersService {
   }
 
   Future<User?> getUserByEmailAndPassword(String email, String password) async {
-    final digest = sha256.convert(utf8.encode(password));
-    final result = await db.query(usersTable,
-        where: "email = ?, password_hash = ?",
-        whereArgs: [email, digest],
-        limit: 1);
+    final digest = sha256.convert(utf8.encode(password)).toString();
+    final result = await db.query(
+        "SELECT * from $usersTable where email = '$email' AND password_hash = '$digest' limit 1");
+
     if (result.isEmpty) {
       return null;
     }
@@ -102,8 +100,8 @@ class UsersService {
   }
 
   Future<User?> getUserByUsername(String username) async {
-    final result = await db.query(usersTable,
-        where: "username = ?", whereArgs: [username], limit: 1);
+    final result = await db.query(
+        "SELECT * from $usersTable where username = '$username' limit 1");
 
     if (result.isEmpty) {
       return null;
@@ -114,96 +112,13 @@ class UsersService {
     return await getUserById(userId.toString());
   }
 
-  Future<User> updateUserByEmail(String email,
+  Future<User?> updateUserByEmail(String email,
       {String? username,
       String? emailForUpdate,
       String? password,
       String? bio,
       String? image}) async {
-    final user = await getUserByEmail(email);
-
-    if (user == null) {
-      throw NotFoundException(message: 'User not found');
-    }
-
-    final initialSql = 'UPDATE $usersTable';
-
-    var sql = initialSql;
-
-    if (username != null && username != user.username) {
-      await _validateUsernameOrThrow(username);
-
-      if (sql == initialSql) {
-        sql = sql + ' SET username = @username';
-      } else {
-        sql = sql + ', username = @username';
-      }
-    }
-
-    if (emailForUpdate != null && emailForUpdate != user.email) {
-      await _validateEmailOrThrow(emailForUpdate);
-
-      if (sql == initialSql) {
-        sql = sql + ' SET email = @emailForUpdate';
-      } else {
-        sql = sql + ', email = @emailForUpdate';
-      }
-    }
-
-    if (password != null) {
-      _validatePasswordOrThrow(password);
-
-      if (sql == initialSql) {
-        sql = sql + " SET password_hash = crypt(@password, gen_salt('bf'))";
-      } else {
-        sql = sql + ", password_hash = crypt(@password, gen_salt('bf'))";
-      }
-    }
-
-    if (bio != null && bio != user.bio) {
-      if (sql == initialSql) {
-        sql = sql + ' SET bio = @bio';
-      } else {
-        sql = sql + ', bio = @bio';
-      }
-    }
-
-    if (image != null && image != user.image) {
-      _validateImageOrThrow(image);
-
-      if (sql == initialSql) {
-        sql = sql + ' SET image = @image';
-      } else {
-        sql = sql + ', image = @image';
-      }
-    }
-
-    var updatedEmail = email;
-
-    if (sql != initialSql) {
-      sql = sql + ', updated_at = current_timestamp';
-      sql = sql + ' WHERE email = @email RETURNING email;';
-
-      // Replace with SQLite
-      // final result = await connectionPool.query(sql, substitutionValues: {
-      //   'email': email,
-      //   'username': username,
-      //   'emailForUpdate': emailForUpdate,
-      //   'password': password,
-      //   'bio': bio,
-      //   'image': image
-      // });
-
-      // updatedEmail = result[0][0];
-    }
-
-    final updatedUser = await getUserByEmail(updatedEmail);
-
-    if (updatedUser == null) {
-      throw AssertionError(
-          "User cannot be null at this point. Email: $email. Updated Email: $updatedEmail");
-    }
-
+    final updatedUser = await getUserByEmail("");
     return updatedUser;
   }
 
@@ -246,16 +161,6 @@ class UsersService {
           message:
               'Password length must be less than or equal to $passwordMaxLength',
           parameterName: 'password');
-    }
-  }
-
-  void _validateImageOrThrow(String image) {
-    final imageUri = Uri.tryParse(image);
-
-    if (imageUri == null ||
-        !(imageUri.isScheme('HTTP') || imageUri.isScheme('HTTPS'))) {
-      throw ArgumentException(
-          message: 'image must be a HTTP/HTTPS URL', parameterName: 'image');
     }
   }
 }

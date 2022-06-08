@@ -74,7 +74,7 @@ Future<bool> storeDummyVCS() async {
     "expirationDate": "2029-12-03T12:19:52Z"
 }""";
   VC vc1 = VCParsing().parseGenericVC(vc1String);
-  VC vc2 = VCParsing().parseGenericVC(vc2String);
+  // VC vc2 = VCParsing().parseGenericVC(vc2String);
   await VCService().storeVC(vc1);
   await VCService().storeVC(vc1);
   // await VCService().storeVC(vc1);

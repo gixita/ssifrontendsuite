@@ -76,11 +76,11 @@ Scan the QR code to start the issuance workflow.<br>
       http.Client client = http.Client();
       Workflow wf = Workflow();
       final payload = jsonDecode(await request.readAsString());
-      // TODO Modify service endpoint to come from the payload
+      // TADA Modify service endpoint to come from the payload
       String serviceEndpoint =
           payload["vpRequest"]["interact"]["service"][0]["serviceEndpoint"];
       String mobileAppDid = payload["presentationSubmission"]["vp"]["holder"];
-      // TODO retrieve mobile app did from the payload
+      // TADA retrieve mobile app did from the payload
       String residentCardUnsigned =
           SSIData.getUnsignedResidentCard(authorityPortalDid, mobileAppDid);
       VC vc = await wf.signVCOnAPSSIServer(client, residentCardUnsigned);

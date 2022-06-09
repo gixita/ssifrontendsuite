@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:portalserver/api_router.dart';
 import 'package:portalserver/unsignedvcs/unsignedvcs_router.dart';
 import 'package:portalserver/unsignedvcs/unsignedvcs_service.dart';
+import 'package:portalserver/ssiworkflow/ssiworkflow_service.dart';
+import 'package:portalserver/ssiworkflow/ssiworkflow_router.dart';
 import 'package:portalserver/common/middleware/auth.dart';
 
 import 'package:portalserver/users/jwt_service.dart';
@@ -41,6 +43,7 @@ Future main(List<String> args) async {
   final jwtService = JwtService(issuer: authIssuer, secretKey: authSecretKey);
   final unsignedVCSService =
       UnsignedVCSService(db: db, usersService: usersService);
+  final ssiWorkflowService = SSIWorkflowService(db: db);
 
   final authProvider =
       AuthProvider(usersService: usersService, jwtService: jwtService);
@@ -55,10 +58,16 @@ Future main(List<String> args) async {
       usersService: usersService,
       authProvider: authProvider);
 
+  final ssiWorkflowRouter = SSIWorkflowRouter(
+      unsignedVCSService: unsignedVCSService,
+      usersService: usersService,
+      authProvider: authProvider,
+      ssiWorkflowService: ssiWorkflowService);
+
   final apiRouter = ApiRouter(
           usersRouter: usersRouter,
-          // profilesRouter: profilesRouter,
-          unsignedVCSRouter: unsignedVCSRouter)
+          unsignedVCSRouter: unsignedVCSRouter,
+          ssiWorkflowRouter: ssiWorkflowRouter)
       .router;
 
   // Configure a pipeline that logs requests.

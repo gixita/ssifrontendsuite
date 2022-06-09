@@ -38,7 +38,7 @@ class UnsignedVCSRouter {
     }
 
     final email = unsignedVCSData['email'].toString();
-    final unsignedvcs = unsignedVCSData['unsignedvcs'].toString();
+    final unsignedvcs = json.encode(unsignedVCSData['unsignedvcs']);
 
     if (email == "") {
       return Response(422,

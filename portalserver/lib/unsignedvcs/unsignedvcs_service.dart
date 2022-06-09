@@ -53,8 +53,9 @@ class UnsignedVCSService {
 
     final vcRow = result[0];
 
-    final String vcIdRead = vcRow['id'];
-    final String userIdRead = vcRow['userid'];
+    final String vcIdRead = vcRow['id'].toString();
+
+    final String userIdRead = vcRow['userid'].toString();
     final String emailRead = vcRow['email'];
     final String unsignedvcsRead = vcRow['unsignedvcs'];
     final DateTime createdAt = DateTime.parse(vcRow['createdAt']);

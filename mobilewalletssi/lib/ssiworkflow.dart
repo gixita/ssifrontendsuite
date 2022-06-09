@@ -72,7 +72,7 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
     Did holder = await DIDService().ensureDIDExists();
     List<List<String>> params = await getParams(outOfBandInvitation, holder);
     List<String> currentWorkflow = params[0];
-    String serviceEndpoint = params[1][0];
+    // String serviceEndpoint = params[1][0];
     if (currentWorkflow.contains("present")) {
       var local = await getCompatibleVCs(params);
       setState(() {
@@ -81,7 +81,7 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
         paramsState = params;
       });
     } else if (currentWorkflow.contains("issue")) {
-      await wfm.authorityPortalIssueVC(serviceEndpoint, holder);
+      // await wfm.authorityPortalIssueVC(serviceEndpoint, holder.id);
       VC receivedVC = await wfm.retreiveSignedVCFromAuthority(params, holder);
       await vcService.storeVC(receivedVC).then((vc) async {
         showSimpleNotification(

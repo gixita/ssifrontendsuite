@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:portalserver/ssiworflow/ssiworkflow_service.dart';
+import 'package:portalserver/ssiworkflow/ssiworkflow_service.dart';
 import 'package:portalserver/users/users_service.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -30,8 +30,12 @@ class SSIWorkflowRouter {
     WorkflowManager wfm = WorkflowManager();
     String uuidEchangeId = wf.generateRandomEchangeId();
     final user = request.context['user'] as User;
+
     final requestBody = await request.readAsString();
     final requestData = json.decode(requestBody);
+    if (requestData['id'] == null) {
+      throw "You must provide the id of a vc";
+    }
     final int vcId = int.parse(requestData['id']);
     UnsignedVCS? unsignedVC = await unsignedVCSService.getUnsignedVCSById(vcId);
     if (unsignedVC != null) {
@@ -51,8 +55,26 @@ class SSIWorkflowRouter {
 
   // Currently only support simple issuance, need to implement conditionnal issuance
   Future<Response> _issueVC(Request request) async {
-    // TODO
-    return Response.ok("Ok");
+    WorkflowManager wfm = WorkflowManager();
+
+    final requestBody = await request.readAsString();
+    final requestData = json.decode(requestBody);
+
+    // params should never be null otherwise the framework would return a Route not found
+    int vcId = await ssiWorkflowService.getUnsignedVCIdByExchangeId(
+        exchangeId: request.params['exchangeid']!);
+    // UnsignedVCS? unsignedVC = await unsignedVCSService.getUnsignedVCSById(vcId);
+    UnsignedVCS? unsignedVC = await unsignedVCSService.getUnsignedVCSById(1);
+    if (unsignedVC != null) {
+      String serviceEndpoint =
+          requestData['vpRequest']['interact']['service'][0]['serviceEndpoint'];
+      String holder = requestData['presentationSubmission']['vp']['holder'];
+      print(unsignedVC.unsignedvcs);
+      await wfm.authorityPortalIssueVC(
+          serviceEndpoint, holder, unsignedVC.unsignedvcs);
+      return Response.ok("");
+    }
+    return Response.notFound({"error": "Unsigned vc not found"});
   }
 
   Handler get router {
@@ -65,9 +87,9 @@ class SSIWorkflowRouter {
             .addHandler(_getOutOfBandIssuanceInvitation));
 
     router.post(
-        '/issuevc',
+        '/issuevc/<exchangeid>',
         Pipeline()
-            .addMiddleware(authProvider.requireAuth())
+            // .addMiddleware(authProvider.requireAuth())
             .addHandler(_issueVC));
 
     return router;

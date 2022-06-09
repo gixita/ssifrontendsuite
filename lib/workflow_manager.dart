@@ -120,11 +120,19 @@ class WorkflowManager {
 
   // This is a temporary method and should be deleted as soon as the authority portal is released
   Future<void> authorityPortalIssueVC(
-      String serviceEndpoint, Did mobileAppDid) async {
+      String serviceEndpoint, String mobileAppDid, String unsignedVC) async {
     Workflow wf = Workflow();
     final didHttp = DIDHttpService();
     http.Client client = http.Client();
     Did authorityPortalDid = await didHttp.getNewDid(client);
+    unsignedVC = unsignedVC.replaceAll("<---mobileAppDid--->", mobileAppDid);
+    unsignedVC = unsignedVC.replaceAll(
+        "<---authorityPortalDid.id--->", authorityPortalDid.id);
+    unsignedVC = unsignedVC.replaceAll(
+        "<---authorityPortalDid.verificationMethod--->",
+        authorityPortalDid.verificationMethod[0].id);
+
+    // ignore: unused_local_variable
     String residentCardUnsigned = """{
   "credential": {
       "@context":[
@@ -136,11 +144,11 @@ class WorkflowManager {
           "VerifiableCredential",
           "PermanentResidentCard"
       ],
-      "issuer":"${authorityPortalDid.id}",
+      "issuer":"<---authorityPortalDid.id--->",
       "issuanceDate":"2019-12-03T12:19:52Z",
       "expirationDate":"2029-12-03T12:19:52Z",
       "credentialSubject":{
-          "id":"${mobileAppDid.id}",
+          "id":"<---mobileAppDid--->",
           "type":[
             "PermanentResident",
             "Person"
@@ -158,11 +166,11 @@ class WorkflowManager {
       }
     },
     "options": {
-        "verificationMethod": "${authorityPortalDid.verificationMethod[0].id}",
+        "verificationMethod": "<---authorityPortalDid.verificationMethod--->",
         "proofPurpose": "assertionMethod"
     }
 }""";
-    VC vc = await wf.signVCOnAPSSIServer(client, residentCardUnsigned);
+    VC vc = await wf.signVCOnAPSSIServer(client, unsignedVC);
     List<VC> vcs = <VC>[vc];
     String residentCardUnsignedPresentationFilled = wf
         .fillInPresentationForIssuanceUnsigned(client, vcs, authorityPortalDid);
@@ -196,7 +204,7 @@ class WorkflowManager {
     "isOneTime": true,
     "callback": [
       {
-        "url": "https://ptsv2.com/t/uuu96-1653299746/post"
+        "url": "https://6c3b-2a02-a03f-c098-7400-34d6-8473-a01d-e206.eu.ngrok.io/api/issuevc/$uuidEchangeId"
       }
     ]
 }""";

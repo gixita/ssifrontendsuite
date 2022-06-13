@@ -4,13 +4,13 @@ import 'sql_helper.dart';
 import 'did_http.dart';
 
 class DIDService {
-  Future<bool> didExists() async {
+  Future<bool> didExistsLocally() async {
     return await SQLHelper.didExists();
   }
 
-  Future<Did> getDid() async {
+  Future<Did> getDid(int didId) async {
     var did = await SQLHelper.getDid();
-    return didFromJsonString(did[0]);
+    return didFromJsonString(did[didId]);
   }
 
   Did didFromJsonString(Map<String, dynamic> didFromDb) {
@@ -35,19 +35,30 @@ class DIDService {
     return myDid;
   }
 
-  Future<Did> createDid() async {
+  Future<List<dynamic>> createDid() async {
     // get did from API
     final didHttp = DIDHttpService();
     final Did did = await didHttp.getNewDid(http.Client());
+    final Did didWithPrivateKey =
+        await didHttp.getPrivateKeyFromServer(http.Client(), did);
     // Store did in database
-    await SQLHelper.createDid(did);
-    return did;
+    int didId = await SQLHelper.createDid(didWithPrivateKey);
+    return [didWithPrivateKey, didId];
   }
 
-  Future<Did> ensureDIDExists() async {
-    var didExist = await didExists();
-    if (didExist) {
-      return await getDid();
+  Future<List<dynamic>> ensureDIDExists({int didId = 0}) async {
+    final didHttp = DIDHttpService();
+    var client = http.Client();
+    var didExistLocally = await didExistsLocally();
+    Did did;
+    if (didExistLocally) {
+      did = await getDid(0);
+      var didExistRemotely = await didHttp.isDidOnServer(client, did.id);
+      if (didExistRemotely) {
+        return [did, 0];
+      } else {
+        didHttp.setPrivateKeyToServer(client, did);
+      }
     }
     return await createDid();
   }

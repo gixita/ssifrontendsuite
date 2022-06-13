@@ -1,4 +1,4 @@
-import 'package:portalserver/unsignedvcs/model/unsignedvcs.dart';
+import 'package:ssifrontendsuite/unsignedvcs.dart';
 import 'package:portalserver/common/exceptions/argument_exception.dart';
 import 'package:portalserver/users/model/user.dart';
 import 'package:sqlite_wrapper/sqlite_wrapper.dart';
@@ -25,7 +25,7 @@ class UnsignedVCSService {
         unsignedVCSTable);
 
     final result = await db
-        .query("SELECT * from $unsignedVCSTable where id=$vcId limit 1");
+        .query('SELECT * from $unsignedVCSTable where id=$vcId limit 1');
 
     final vcRow = result[0];
 
@@ -34,13 +34,14 @@ class UnsignedVCSService {
     final DateTime createdAt = DateTime.parse(vcRow['createdAt']);
     final DateTime updatedAt = DateTime.parse(vcRow['updatedAt']);
 
-    return UnsignedVCS(
+    UnsignedVCS unsignedVCS = UnsignedVCS(
         id: vcId.toString(),
         email: emailRead,
         unsignedvcs: unsignedvcsRead,
         userid: user.id.toString(),
         createdAt: createdAt,
         updatedAt: updatedAt);
+    return unsignedVCS;
   }
 
   Future<UnsignedVCS?> getUnsignedVCSById(int vcId) async {

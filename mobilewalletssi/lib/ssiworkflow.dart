@@ -69,7 +69,8 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
     WorkflowManager wfm = WorkflowManager();
     VCService vcService = VCService();
     // try {
-    Did holder = await DIDService().ensureDIDExists();
+    List<dynamic> res = await DIDService().ensureDIDExists(didId: 0);
+    Did holder = res[0];
     List<List<String>> params = await getParams(outOfBandInvitation, holder);
     List<String> currentWorkflow = params[0];
     // String serviceEndpoint = params[1][0];
@@ -132,7 +133,7 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
         return ElevatedButton(
           child: const Text("Sign and send"),
           onPressed: () async {
-            Did holder = await DIDService().getDid();
+            Did holder = (await DIDService().ensureDIDExists(didId: 0))[0];
             await WorkflowManager()
                 .sendVCs(paramsState, holder, sendVCList)
                 .then((result) {

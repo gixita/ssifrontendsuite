@@ -4,19 +4,6 @@ VC vcFromJson(String str) => VC.fromJson(str);
 
 String vcToJson(VC data) => json.encode(data.toJson());
 
-// class VC {
-//   Map<String, String> parseGenericVC(rawVC) {
-//     Map<String, dynamic> decodedVC = jsonDecode(rawVC);
-//     Map<String, String> resultVC = {
-//       "type": decodedVC['type'].toString(),
-//       "issuer": decodedVC['issuer'].toString(),
-//       "issuanceDate": decodedVC['issuanceDate'].toString(),
-//       "expirationDate": decodedVC['expirationDate'].toString(),
-//       "rawVC": rawVC,
-//     };
-//     return resultVC;
-//   }
-
 class VC {
   VC({
     required this.type,

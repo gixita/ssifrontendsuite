@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class UnsignedVCS {
   final String id;
   final String email;
@@ -17,7 +19,7 @@ class UnsignedVCS {
   UnsignedVCS.fromJson(Map<String, dynamic> json)
       : id = json['unsignedvcs']['id'],
         email = json['unsignedvcs']['email'],
-        unsignedvcs = json['unsignedvcs']['unsignedvcs'],
+        unsignedvcs = jsonEncode(json['unsignedvcs']['unsignedvcs']),
         userid = json['unsignedvcs']['userid'],
         createdAt = DateTime.parse(json['unsignedvcs']['createdAt']),
         updatedAt = DateTime.parse(json['unsignedvcs']['updatedAt']);
@@ -26,7 +28,7 @@ class UnsignedVCS {
         'unsignedvcs': {
           'id': id,
           'email': email,
-          'unsignedvcs': unsignedvcs,
+          'unsignedvcs': json.decode(unsignedvcs),
           'userid': userid,
           'createdAt': createdAt.toIso8601String(),
           'updatedAt': updatedAt.toIso8601String()

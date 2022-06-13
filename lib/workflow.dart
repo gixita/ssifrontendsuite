@@ -4,8 +4,6 @@ import 'did_model.dart';
 import 'vc_model.dart';
 import 'vc_parsing.dart';
 import 'dart:math';
-import 'dart:developer' as dev;
-import 'package:flutter/foundation.dart';
 
 class Workflow {
   final String baseURL = "https://vc-api-dev.energyweb.org/";
@@ -322,7 +320,6 @@ class Workflow {
     Map<String, String> requestHeaders = {
       'Content-type': 'application/json',
     };
-    dev.log(unsignedPresentation);
 
     // Maybe the headers should not be provided
     http.Response res = await client.post(url,

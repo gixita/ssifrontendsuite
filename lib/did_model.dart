@@ -33,12 +33,14 @@ class VerificationMethod {
     required this.type,
     required this.controller,
     required this.publicKeyJwk,
+    this.privateKeyJwk,
   });
 
   String id;
   String type;
   String controller;
   PublicKeyJwk publicKeyJwk;
+  PrivateKeyJwk? privateKeyJwk;
 
   factory VerificationMethod.fromJson(Map<String, dynamic> json) =>
       VerificationMethod(
@@ -82,4 +84,17 @@ class PublicKeyJwk {
         "kty": kty,
         "kid": kid,
       };
+}
+
+class PrivateKeyJwk {
+  PrivateKeyJwk({
+    required this.d,
+  });
+
+  String d;
+
+  factory PrivateKeyJwk.fromJson(Map<String, dynamic> json) =>
+      PrivateKeyJwk(d: json["d"]);
+
+  Map<String, dynamic> toJson() => {"d": d};
 }

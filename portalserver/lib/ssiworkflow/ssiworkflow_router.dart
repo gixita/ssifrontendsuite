@@ -6,11 +6,12 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:ssifrontendsuite/workflow.dart';
 import 'package:ssifrontendsuite/workflow_manager.dart';
+import 'package:ssifrontendsuite/unsignedvcs.dart';
+
 import 'package:portalserver/common/exceptions/not_found_exception.dart';
 import 'package:portalserver/common/exceptions/unauthorized_exception.dart';
 
 import '../common/middleware/auth.dart';
-import '../unsignedvcs/model/unsignedvcs.dart';
 import '../unsignedvcs/unsignedvcs_service.dart';
 import '../users/model/user.dart';
 
@@ -32,6 +33,7 @@ class SSIWorkflowRouter {
     final user = request.context['user'] as User;
 
     final requestBody = await request.readAsString();
+    print(requestBody);
     final requestData = json.decode(requestBody);
     if (requestData['id'] == null) {
       throw "You must provide the id of a vc";

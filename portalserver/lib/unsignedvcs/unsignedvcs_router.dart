@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:portalserver/unsignedvcs/unsignedvcs_service.dart';
 
-import 'package:portalserver/unsignedvcs/model/unsignedvcs.dart';
+import 'package:ssifrontendsuite/unsignedvcs.dart';
 import 'package:portalserver/common/errors/dtos/error_dto.dart';
 import 'package:portalserver/common/exceptions/already_exists_exception.dart';
 import 'package:portalserver/common/exceptions/argument_exception.dart';
@@ -60,8 +60,8 @@ class UnsignedVCSRouter {
     } on AlreadyExistsException catch (e) {
       return Response(409, body: jsonEncode(ErrorDto(errors: [e.message])));
     }
-
-    return Response(201, body: json.encode(unsignedVCS.toJson()));
+    String jsonBody = json.encode(unsignedVCS.toJson());
+    return Response(201, body: jsonBody);
   }
 
   // Retrieve the list of self issued VCS for the installer

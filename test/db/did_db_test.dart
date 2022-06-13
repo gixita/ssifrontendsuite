@@ -1,5 +1,5 @@
-@Skip(
-    "SQL test are not supported so skipped in flutter test (did_db_test.dart)")
+// @Skip(
+//     "SQL test are not supported so skipped in flutter test (did_db_test.dart)")
 import 'package:ssifrontendsuite/did.dart';
 import 'package:test/test.dart' as test;
 import 'package:flutter_test/flutter_test.dart';
@@ -36,10 +36,10 @@ void main() {
     await SQLHelper.deleteAllDid();
     Did did = didFromJson(rawDid);
     await SQLHelper.createDid(did);
-    Did didFromDb = await DIDService().getDid();
+    Did didFromDb = await DIDService().getDid(0);
 
     expect(didFromDb, isA<Did>());
-  });
+  }, skip: true);
 
   // test.test('Store new did in db from the real API', () async {
   //   TestWidgetsFlutterBinding.ensureInitialized();
@@ -53,4 +53,11 @@ void main() {
   //   TestWidgetsFlutterBinding.ensureInitialized();
   //   await SQLHelper.db();
   // });
+
+  test.test('Ensure DID exists', () async {
+    await SQLHelper.db();
+    List<dynamic> res = await DIDService().ensureDIDExists();
+    Did holder = res[0];
+    expect(holder, isA<Did>());
+  }, skip: false);
 }

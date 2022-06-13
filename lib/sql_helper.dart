@@ -24,6 +24,7 @@ class SQLHelper {
         x TEXT,
         kty TEXT,
         kid TEXT,
+        d Text,
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       )""");
     await SQLiteWrapper().execute("""CREATE TABLE vcs(
@@ -101,7 +102,8 @@ class SQLHelper {
       'crv': did.verificationMethod[0].publicKeyJwk.crv,
       'x': did.verificationMethod[0].publicKeyJwk.x,
       'kty': did.verificationMethod[0].publicKeyJwk.kty,
-      'kid': did.verificationMethod[0].publicKeyJwk.kid
+      'kid': did.verificationMethod[0].publicKeyJwk.kid,
+      'd': did.verificationMethod[0].privateKeyJwk!.d,
     };
     int? countDid = await SQLiteWrapper()
         .query("SELECT count(*) from dids", singleResult: true);

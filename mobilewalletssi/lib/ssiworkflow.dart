@@ -91,7 +91,7 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
         );
         await VCService().getIssuerLabel(vc.issuer).then((label) {
           if (label.isNotEmpty) {
-            Navigator.of(context).pop();
+            Navigator.popUntil(context, ModalRoute.withName('/'));
           } else {
             Navigator.pushNamed(context, '/didlabel', arguments: vc.issuer);
           }

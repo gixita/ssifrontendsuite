@@ -126,6 +126,11 @@ class SQLHelper {
     }
   }
 
+  static Future<void> deleteVC(int id) async {
+    var data = {"id": id};
+    await SQLiteWrapper().delete(data, 'vcs', keys: const ['id']);
+  }
+
   static Future<List<Map<String, dynamic>>> getIssuerLabel(String did) async {
     return await SQLiteWrapper()
         .query("SELECT * from issuers where did = '$did' limit 1");

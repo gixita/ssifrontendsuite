@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:ssifrontendsuite/vc_model.dart';
 import 'dart:convert';
+import 'package:ssifrontendsuite/vc.dart';
 
 class VCDetailsPage extends StatefulWidget {
   const VCDetailsPage({Key? key, required this.title}) : super(key: key);
@@ -69,16 +71,82 @@ class _VCDetailsPageState extends State<VCDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final vc = ModalRoute.of(context)!.settings.arguments as VC;
+
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Container(
+          padding: const EdgeInsets.all(15),
+          child: SingleChildScrollView(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: generateDetails(vc)),
+          )),
+      floatingActionButton:
+          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+        FloatingActionButton(
+            heroTag: null,
+            onPressed: () {
+              Navigator.pushNamed(context, '/qrcode');
+            },
+            tooltip: 'Give a title',
+            child: const Icon(Icons.edit)),
+        const SizedBox(
+          width: 8,
         ),
-        body: Container(
-            padding: const EdgeInsets.all(15),
-            child: SingleChildScrollView(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: generateDetails(vc)),
-            )));
+        FloatingActionButton(
+            heroTag: null,
+            onPressed: () {
+              showAlertDialog(context, vc);
+            },
+            tooltip: 'Delete',
+            child: const Icon(Icons.delete)),
+        const SizedBox(
+          width: 8,
+        ),
+      ]),
+    );
+  }
+
+  showAlertDialog(BuildContext context, VC vc) {
+    // set up the buttons
+    Widget cancelButton = TextButton(
+      child: const Text("Cancel"),
+      onPressed: () {},
+    );
+    Widget continueButton = TextButton(
+      child: const Text(
+        "Delete",
+        style: TextStyle(color: Colors.red),
+      ),
+      onPressed: () async {
+        print("VC id in db ${vc.dbId}");
+        VCService().deleteVC(vc.dbId).then(
+          (value) {
+            Navigator.popUntil(context, ModalRoute.withName('/'));
+          },
+        );
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Attention"),
+      content: const Text(
+          "You are about to delete a document, this action is irreversible."),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 }

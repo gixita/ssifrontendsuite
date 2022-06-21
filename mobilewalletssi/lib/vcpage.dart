@@ -102,7 +102,12 @@ class _VCPageState extends State<VCPage> {
         FloatingActionButton(
             heroTag: null,
             onPressed: () {
-              Navigator.pushNamed(context, '/qrcode');
+              Navigator.pushNamed(context, '/qrcode').then((T) {
+                setState(() {
+                  vcs = [];
+                });
+                refresh();
+              });
             },
             tooltip: 'QRCode reader',
             child: const Icon(Icons.qr_code)),
@@ -181,7 +186,13 @@ class _VCPageState extends State<VCPage> {
                         child: const Text('View details'),
                         onPressed: () {
                           Navigator.pushNamed(context, '/vcdetails',
-                              arguments: vcList[index]);
+                                  arguments: vcList[index])
+                              .then((T) {
+                            setState(() {
+                              vcs = [];
+                            });
+                            refresh();
+                          });
                         },
                       ),
                       const SizedBox(width: 8),

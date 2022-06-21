@@ -18,6 +18,7 @@ class VC {
   String issuanceDate;
   String expirationDate;
   String rawVC;
+  int dbId = 0;
 
   factory VC.fromJson(String str) {
     Map<String, dynamic> json = jsonDecode(str);

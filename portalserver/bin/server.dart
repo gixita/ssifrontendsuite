@@ -73,7 +73,6 @@ Future main(List<String> args) async {
   // Configure a pipeline that logs requests.
   final handler = Pipeline().addMiddleware(logRequests()).addHandler(apiRouter);
 
-  // See https://cloud.google.com/run/docs/reference/container-contract#port
   final port = int.parse(Platform.environment['PORT'] ?? '8080');
 
   final server = await serve(handler, InternetAddress.anyIPv4, port);

@@ -25,6 +25,9 @@ class VCService {
     VC vc;
     if (vcListOfMap.isNotEmpty) {
       vc = VCService().parseGenericVC(vcListOfMap[0]['rawVC']);
+      vcListOfMap[0]['id'] != null
+          ? vc.dbId = vcListOfMap[0]['id']
+          : vc.dbId = 0;
     } else {
       throw "There is no VC with that id";
     }
@@ -36,7 +39,9 @@ class VCService {
         await SQLHelper.getReceivedVCs(myDid);
     List<VC> vcList = <VC>[];
     for (var element in receivedVCList) {
-      vcList.add(VCService().parseGenericVC(element['rawVC']));
+      var vc = VCService().parseGenericVC(element['rawVC']);
+      element['id'] != null ? vc.dbId = element['id'] : vc.dbId = 0;
+      vcList.add(vc);
     }
     return vcList;
   }
@@ -46,6 +51,8 @@ class VCService {
     List<VC> vcListToReturn = <VC>[];
     for (var element in vcList) {
       var vc = VCService().parseGenericVC(element['rawVC']);
+
+      element['id'] != null ? vc.dbId = element['id'] : vc.dbId = 0;
       List<Map<String, dynamic>> issuerData =
           await SQLHelper.getIssuerLabel(vc.issuer);
       if (issuerData.isNotEmpty) {
@@ -54,6 +61,10 @@ class VCService {
       vcListToReturn.add(vc);
     }
     return vcListToReturn;
+  }
+
+  Future<void> deleteVC(int id) async {
+    await SQLHelper.deleteVC(id);
   }
 
   Future<List<VC>> getSelfSignedVCs(String myDid) async {

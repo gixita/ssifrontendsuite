@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'globalvar.dart';
+import 'package:ssifrontendsuite/globalvar.dart';
 import 'navbar.dart';
 import 'login.dart';
 import 'package:http/http.dart' as http;
@@ -23,9 +23,11 @@ class _VCIssuedToMePageState extends State<VCIssuedToMePage> {
   Future<String?> getToken() async {
     String? local = await AuthUtils.getToken();
     List<UnsignedVCS> localToMeVCS = await getVCIssuedToMe(local);
+    List<UnsignedVCS> localByMeVCS = await getVCIssuedByMe(local);
     setState(() {
       token = local;
       unsignedToMeVCS = localToMeVCS;
+      unsignedByMeVCS = localByMeVCS;
     });
     return token;
   }
@@ -76,8 +78,10 @@ class _VCIssuedToMePageState extends State<VCIssuedToMePage> {
     List<UnsignedVCS> unsignedVCS;
     if (by == "me") {
       unsignedVCS = unsignedByMeVCS;
-    } else {}
-    unsignedVCS = unsignedToMeVCS;
+    } else {
+      unsignedVCS = unsignedToMeVCS;
+    }
+
     if (unsignedVCS.isEmpty) {
       return Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -101,7 +105,7 @@ class _VCIssuedToMePageState extends State<VCIssuedToMePage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text("${widget.title}$by"),
       ),
       body: Center(
         child: Stack(

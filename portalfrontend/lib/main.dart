@@ -3,6 +3,9 @@ import 'login.dart';
 import 'vcdetailspage.dart';
 import 'vcissuedtome.dart';
 import 'outofbandinvitation.dart';
+import 'selectvctoissue.dart';
+import 'issueidentitypage.dart';
+import 'electricvehiculeissuepage.dart';
 
 // https://realto.readme.io/docs/entities-and-energy-devices
 void main() {
@@ -34,10 +37,16 @@ class MyApp extends StatelessWidget {
           '/login': (context) => const LoginPage(title: "Login"),
           '/register': (context) => const LoginPage(title: "Register"),
           '/vcdetails': (context) => const VCDetailsPage(title: "View details"),
+          '/issueidentity': (context) =>
+              const IssueIdentityPage(title: "Issue an identity document"),
+          '/electricvehicule': (context) => const ElectricVehiculeIssuePage(
+              title: "Issue an electric vehicule document"),
+          '/selectvctype': (context) =>
+              const SelectVCToIssuePage(title: "Select VC type to issue"),
           '/qrcode': (context) =>
               const OutOfBandInvitationPage(title: "Scan the QR Code"),
           '/vcissued': (context) =>
-              const VCIssuedToMePage(title: "Documents issued"),
+              const VCIssuedToMePage(title: "Documents issued by "),
         });
   }
 }

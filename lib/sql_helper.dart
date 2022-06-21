@@ -51,6 +51,7 @@ class SQLHelper {
       """);
     await SQLiteWrapper().execute("""CREATE TABLE users(
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        didId INTEGER,
         username TEXT,
         email TEXT,
         password_hash TEXT,
@@ -105,11 +106,6 @@ class SQLHelper {
       'kid': did.verificationMethod[0].publicKeyJwk.kid,
       'd': did.verificationMethod[0].privateKeyJwk!.d,
     };
-    int? countDid = await SQLiteWrapper()
-        .query("SELECT count(*) from dids", singleResult: true);
-    if (countDid! > 0) {
-      throw "There is already a DID for this user.";
-    }
     final id = await SQLiteWrapper().insert(data, 'dids');
     return id;
   }

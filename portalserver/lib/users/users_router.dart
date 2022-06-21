@@ -9,6 +9,7 @@ import 'package:portalserver/users/jwt_service.dart';
 import 'package:portalserver/users/users_service.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:ssifrontendsuite/did.dart';
 
 import 'model/user.dart';
 
@@ -51,12 +52,13 @@ class UsersRouter {
       return Response(422,
           body: jsonEncode(ErrorDto(errors: ['password is required'])));
     }
-
+    var did = await DIDService().createDid();
+    print("new id of did = ${did[1]}");
     User user;
 
     try {
       user = await usersService.createUser(
-          username: username, email: email, password: password);
+          didId: did[1], username: username, email: email, password: password);
     } on ArgumentException catch (e) {
       return Response(422, body: jsonEncode(ErrorDto(errors: [e.message])));
     } on AlreadyExistsException catch (e) {
@@ -65,8 +67,11 @@ class UsersRouter {
 
     final token = jwtService.getToken(user.email);
 
-    final userDto =
-        UserDto(username: user.username, email: user.email, token: token);
+    final userDto = UserDto(
+        didId: did[1],
+        username: user.username,
+        email: user.email,
+        token: token);
 
     return Response(201, body: jsonEncode(userDto));
   }
@@ -74,7 +79,6 @@ class UsersRouter {
   Future<Response> _loginUserHandler(Request request) async {
     final requestBody = await request.readAsString();
     final requestData = json.decode(requestBody);
-
     final userData = requestData['user'];
 
     if (userData == null) {
@@ -101,6 +105,7 @@ class UsersRouter {
     final token = jwtService.getToken(user.email);
 
     final userDto = UserDto(
+        didId: user.didId,
         username: user.username,
         email: user.email,
         token: token,
@@ -116,6 +121,7 @@ class UsersRouter {
     final token = jwtService.getToken(user.email);
 
     final userDto = UserDto(
+        didId: user.didId,
         username: user.username,
         email: user.email,
         token: token,

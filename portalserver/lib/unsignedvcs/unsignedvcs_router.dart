@@ -24,13 +24,18 @@ class UnsignedVCSRouter {
       required this.authProvider});
 
   Future<Response> _createUnsignedVCS(Request request) async {
+    print("coming here");
+
     final user = request.context['user'] as User;
+    print("coming here");
 
     final requestBody = await request.readAsString();
+    print("coming here");
 
     final requestData = json.decode(requestBody);
 
     final unsignedVCSData = requestData['unsignedvcs'];
+    print("coming here");
 
     if (unsignedVCSData == null) {
       return Response(422,
@@ -39,7 +44,7 @@ class UnsignedVCSRouter {
 
     final email = unsignedVCSData['email'].toString();
     final unsignedvcs = json.encode(unsignedVCSData['unsignedvcs']);
-
+    print("coming here");
     if (email == "") {
       return Response(422,
           body: jsonEncode(ErrorDto(errors: ['email is required'])));
@@ -55,12 +60,15 @@ class UnsignedVCSRouter {
     try {
       unsignedVCS = await unsignedVCSService.createUnsignedVCS(
           email: email, unsignedvcs: unsignedvcs, user: user);
+      print("coming here");
     } on ArgumentException catch (e) {
       return Response(422, body: jsonEncode(ErrorDto(errors: [e.message])));
     } on AlreadyExistsException catch (e) {
       return Response(409, body: jsonEncode(ErrorDto(errors: [e.message])));
     }
     String jsonBody = json.encode(unsignedVCS.toJson());
+    print("coming here");
+
     return Response(201, body: jsonBody);
   }
 

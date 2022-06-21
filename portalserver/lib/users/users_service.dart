@@ -14,7 +14,8 @@ class UsersService {
   UsersService({required this.db});
 
   Future<User> createUser(
-      {required String username,
+      {required int didId,
+      required String username,
       required String email,
       required String password}) async {
     await _validateUsernameOrThrow(username);
@@ -22,10 +23,9 @@ class UsersService {
     await _validateEmailOrThrow(email);
 
     _validatePasswordOrThrow(password);
-
     final digest = sha256.convert(utf8.encode(password)).toString();
-    print(digest);
     final result = await db.insert(<String, Object?>{
+      'didId': didId,
       'username': username,
       'email': email,
       'password_hash': digest
@@ -35,11 +35,14 @@ class UsersService {
         await db.query("SELECT * from $usersTable where id = $result limit 1");
 
     final userId = userInserted[0]['id'];
+    final int didIdRead = userInserted[0]['didId'];
+
     final createdAt = userInserted[0]['createdAt'];
     final updatedAt = userInserted[0]['updatedAt'];
 
     return User(
         id: userId.toString(),
+        didId: didIdRead,
         username: username,
         email: email,
         createdAt: DateTime.parse(createdAt.toString()),
@@ -56,6 +59,7 @@ class UsersService {
 
     final userRow = result[0];
 
+    final didId = userRow['didId'];
     final email = userRow['email'];
     final username = userRow['username'];
     final bio = userRow['bio'];
@@ -65,6 +69,7 @@ class UsersService {
 
     return User(
         id: userId,
+        didId: didId,
         username: username.toString(),
         email: email.toString(),
         bio: bio.toString(),

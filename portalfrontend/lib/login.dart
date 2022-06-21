@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'globalvar.dart';
+import 'package:ssifrontendsuite/globalvar.dart';
 
 class AuthUtils {
   static Future<String> getToken() async {
@@ -55,8 +55,9 @@ class _LoginPageState extends State<LoginPage> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
+              child: TextFormField(
                 controller: loginController,
+                // initialValue: "xyz@gmail.com",
                 decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Email',
@@ -66,8 +67,9 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
-              child: TextField(
+              child: TextFormField(
                 controller: passwordController,
+                // initialValue: "oiqsuk98983sdljds",
                 obscureText: true,
                 decoration: const InputDecoration(
                     border: OutlineInputBorder(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NavBar extends StatelessWidget {
   const NavBar({Key? key}) : super(key: key);
@@ -43,14 +44,19 @@ class NavBar extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.share),
             title: const Text('Issue a document'),
-            onTap: () =>
-                Navigator.pushNamed(context, '/vcissued', arguments: "me"),
+            onTap: () => Navigator.pushNamed(context, '/selectvctype'),
           ),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
-            onTap: () =>
-                Navigator.pushNamed(context, '/vcissued', arguments: "me"),
+            onTap: () async {
+              await SharedPreferences.getInstance().then(
+                (value) {
+                  value.remove('token');
+                  Navigator.popUntil(context, ModalRoute.withName('/login'));
+                },
+              );
+            },
           ),
         ],
       ),

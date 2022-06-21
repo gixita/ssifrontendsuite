@@ -1,6 +1,7 @@
 import 'package:portalserver/common/model/base_entity.dart';
 
 class User extends BaseEntity {
+  final int didId;
   final String username;
   final String email;
   final String? bio;
@@ -8,6 +9,7 @@ class User extends BaseEntity {
 
   User(
       {required String id,
+      required this.didId,
       required this.username,
       required this.email,
       this.bio,

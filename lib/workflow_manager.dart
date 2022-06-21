@@ -1,7 +1,7 @@
 import 'package:ssifrontendsuite/vc.dart';
+import 'package:ssifrontendsuite/globalvar.dart';
 
 import 'did_model.dart';
-import 'did_http.dart';
 import 'workflow.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -119,12 +119,10 @@ class WorkflowManager {
   }
 
   // This is a temporary method and should be deleted as soon as the authority portal is released
-  Future<void> authorityPortalIssueVC(
-      String serviceEndpoint, String mobileAppDid, String unsignedVC) async {
+  Future<void> authorityPortalIssueVC(String serviceEndpoint,
+      String mobileAppDid, String unsignedVC, Did authorityPortalDid) async {
     Workflow wf = Workflow();
-    final didHttp = DIDHttpService();
     http.Client client = http.Client();
-    Did authorityPortalDid = await didHttp.getNewDid(client);
     unsignedVC = unsignedVC.replaceAll("<---mobileAppDid--->", mobileAppDid);
     unsignedVC = unsignedVC.replaceAll(
         "<---authorityPortalDid.id--->", authorityPortalDid.id);
@@ -204,7 +202,7 @@ class WorkflowManager {
     "isOneTime": true,
     "callback": [
       {
-        "url": "https://6c3b-2a02-a03f-c098-7400-34d6-8473-a01d-e206.eu.ngrok.io/api/issuevc/$uuidEchangeId"
+        "url": "${GlobalVar.host}/api/issuevc/$uuidEchangeId"
       }
     ]
 }""";

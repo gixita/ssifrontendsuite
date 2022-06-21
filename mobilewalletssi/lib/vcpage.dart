@@ -111,34 +111,34 @@ class _VCPageState extends State<VCPage> {
             },
             tooltip: 'QRCode reader',
             child: const Icon(Icons.qr_code)),
-        const SizedBox(
-          width: 8,
-        ),
-        FloatingActionButton(
-            heroTag: null,
-            onPressed: () {
-              Navigator.pushNamed(context, '/ssiworkflow',
-                      arguments: outOfBandIssuanceInvitation)
-                  .then((T) {
-                setState(() {
-                  vcs = [];
-                });
-                refresh();
-              });
-            },
-            tooltip: 'Add presentation',
-            child: const Icon(Icons.receipt)),
-        const SizedBox(
-          width: 8,
-        ),
-        FloatingActionButton(
-            heroTag: null,
-            onPressed: () {
-              Navigator.pushNamed(context, '/ssiworkflow',
-                  arguments: outOfBandPresentationInvitation);
-            },
-            tooltip: 'Add presentation',
-            child: const Icon(Icons.send)),
+        // const SizedBox(
+        //   width: 8,
+        // ),
+        // FloatingActionButton(
+        //     heroTag: null,
+        //     onPressed: () {
+        //       Navigator.pushNamed(context, '/ssiworkflow',
+        //               arguments: outOfBandIssuanceInvitation)
+        //           .then((T) {
+        //         setState(() {
+        //           vcs = [];
+        //         });
+        //         refresh();
+        //       });
+        //     },
+        //     tooltip: 'Add presentation',
+        //     child: const Icon(Icons.receipt)),
+        // const SizedBox(
+        //   width: 8,
+        // ),
+        // FloatingActionButton(
+        //     heroTag: null,
+        //     onPressed: () {
+        //       Navigator.pushNamed(context, '/ssiworkflow',
+        //           arguments: outOfBandPresentationInvitation);
+        //     },
+        //     tooltip: 'Add presentation',
+        //     child: const Icon(Icons.send)),
       ]),
     );
   }

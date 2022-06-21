@@ -2,7 +2,8 @@
 import 'package:sqlite_wrapper/sqlite_wrapper.dart';
 import 'did_model.dart';
 import 'vc_model.dart';
-// import 'package:path/path.dart' as p;
+import 'package:path/path.dart' as p;
+import 'dart:io';
 // import 'package:path_provider/path_provider.dart';
 
 class SQLHelper {
@@ -84,9 +85,13 @@ class SQLHelper {
       // if (!await docDir.exists()) {
       //   await docDir.create(recursive: true);
       // }
-      // dbPath = p.join(docDir.path, "TADADatabase3.sqlite");
+      // dbPath = p.join(docDir.path, "ssi.sqlite");
+      dbPath = p.join("./ssi.sqlite");
+      if (Platform.isAndroid) {
+        dbPath = p.join(
+            "/data/user/0/com.example.mobilewallet/app_flutter/ssi.sqlite");
+      }
     }
-    // final DatabaseInfo dbInfo =
     await SQLiteWrapper().openDB(dbPath, version: 1, onCreate: () async {
       await createTables();
     });

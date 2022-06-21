@@ -4,7 +4,8 @@ import 'did_model.dart';
 import 'vc_model.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
-// import 'package:path_provider/path_provider.dart';
+// import 'package:path_provider/path_provider.dart'
+//     if (dart.library.io) 'my_path_provider.dart';
 
 class SQLHelper {
   static final SQLHelper _singleton = SQLHelper._internal();
@@ -78,15 +79,19 @@ class SQLHelper {
       )""");
   }
 
-  static Future<SQLiteWrapper> db({inMemory = true}) async {
+  static Future<SQLiteWrapper> db({inMemory = false}) async {
     String dbPath = inMemoryDatabasePath;
     if (!inMemory) {
-      // final docDir = await getApplicationDocumentsDirectory();
-      // if (!await docDir.exists()) {
-      //   await docDir.create(recursive: true);
-      // }
-      // dbPath = p.join(docDir.path, "ssi.sqlite");
       dbPath = p.join("./ssi.sqlite");
+      // if (Platform.isAndroid) {
+      //   final docDir = await getApplicationDocumentsDirectory();
+      //   if (!await docDir.exists()) {
+      //     await docDir.create(recursive: true);
+      //   }
+      //   dbPath = p.join(docDir.path, "ssi.sqlite");
+      // }
+      print(p.current);
+
       if (Platform.isAndroid) {
         dbPath = p.join(
             "/data/user/0/com.example.mobilewallet/app_flutter/ssi.sqlite");

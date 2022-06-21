@@ -23,10 +23,23 @@ class _QRViewExampleState extends State<QRViewExample> {
   @override
   void reassemble() {
     super.reassemble();
-    if (Platform.isAndroid) {
+    // if (Platform.isAndroid) {
+    //   controller!.pauseCamera();
+    // }
+    // controller!.resumeCamera();
+    // Future.delayed(Duration(seconds: 1)).then((value) {
+    //   controller!.pauseCamera();
+    //   controller!.resumeCamera();
+    // });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 300)).then((value) {
       controller!.pauseCamera();
-    }
-    controller!.resumeCamera();
+      controller!.resumeCamera();
+    });
   }
 
   String testQrData(String? data) {

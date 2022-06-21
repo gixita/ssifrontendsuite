@@ -243,7 +243,7 @@ class Workflow {
     // Maybe the headers should not be provided
     http.Response res =
         await client.post(url, body: body, headers: requestHeaders);
-
+    print(res.body);
     VC vc = VCParsing().parseGenericVC(res.body);
     if (res.statusCode == 201) {
       return vc;

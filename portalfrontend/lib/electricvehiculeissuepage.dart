@@ -303,7 +303,7 @@ class _ElectricVehiculeIssuePageState extends State<ElectricVehiculeIssuePage> {
                 "ElectricalVehicule":"ev:ElectricalVehicule"
             }
         ],
-        "id":"<----uuid---->",
+        "id":"https://www.eliagroup.eu/vc/893893938",
         "type":[
             "VerifiableCredential",
             "ElectricalVehicule"
@@ -326,7 +326,8 @@ class _ElectricVehiculeIssuePageState extends State<ElectricVehiculeIssuePage> {
             "commandTypes": [<----commandTypesList---->]
         },
         "issuer":"<---authorityPortalDid.id--->",
-        "issuanceDate":"2022-03-18T08:57:32.477Z"
+        "issuanceDate":"2022-03-18T08:57:32.477Z",
+        "expirationDate":"2029-03-18T08:57:32.477Z"
     },
     "options": 
     {
@@ -386,7 +387,6 @@ class _ElectricVehiculeIssuePageState extends State<ElectricVehiculeIssuePage> {
                         readingTypesList.join(", "));
                     local = local.replaceAll("<----commandTypesList---->",
                         commandTypesList.join(", "));
-                    print(local);
                     await http
                         .post(Uri.parse("${GlobalVar.host}/api/unsignedvcs"),
                             headers: {'Authorization': 'Token $token'},

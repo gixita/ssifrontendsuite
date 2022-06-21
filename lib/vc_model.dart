@@ -21,7 +21,14 @@ class VC {
 
   factory VC.fromJson(String str) {
     Map<String, dynamic> json = jsonDecode(str);
+    if (json["issuer"] == null ||
+        json["type"] == null ||
+        json["issuanceDate"] == null ||
+        json["expirationDate"] == null) {
+      throw "The type, issuer, issuanceDate and expirationDate fields are mandatory";
+    }
     final List<String> types = json["type"].cast<String>();
+
     VC result = VC(
       type: types,
       issuer: json["issuer"],

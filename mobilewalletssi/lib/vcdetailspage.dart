@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:ssifrontendsuite/vc_model.dart';
 import 'dart:convert';
 import 'package:ssifrontendsuite/vc.dart';
@@ -113,7 +112,9 @@ class _VCDetailsPageState extends State<VCDetailsPage> {
     // set up the buttons
     Widget cancelButton = TextButton(
       child: const Text("Cancel"),
-      onPressed: () {},
+      onPressed: () {
+        Navigator.pop(context, false);
+      },
     );
     Widget continueButton = TextButton(
       child: const Text(
@@ -121,7 +122,6 @@ class _VCDetailsPageState extends State<VCDetailsPage> {
         style: TextStyle(color: Colors.red),
       ),
       onPressed: () async {
-        print("VC id in db ${vc.dbId}");
         VCService().deleteVC(vc.dbId).then(
           (value) {
             Navigator.popUntil(context, ModalRoute.withName('/'));

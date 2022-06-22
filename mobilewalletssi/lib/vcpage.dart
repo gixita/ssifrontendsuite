@@ -4,6 +4,10 @@ import 'package:ssifrontendsuite/vc_model.dart';
 import 'package:ssifrontendsuite/workflow_manager.dart';
 import 'data/dummy_vc.dart';
 import 'package:ssifrontendsuite/sql_helper.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+import 'package:ssifrontendsuite/did.dart';
+import 'package:ssifrontendsuite/did_model.dart';
 
 // usage of flutter builder described in this tutorial
 // https://www.woolha.com/tutorials/flutter-using-futurebuilder-widget-examples
@@ -21,16 +25,24 @@ class _VCPageState extends State<VCPage> {
   List<VC> vcs = [];
   String outOfBandIssuanceInvitation = "";
   String outOfBandPresentationInvitation = "";
+  late Did mobileDid;
 
   Future<bool> storeInDb() async {
-    await SQLHelper.db();
+    final docDir = await getApplicationDocumentsDirectory();
+    if (!await docDir.exists()) {
+      await docDir.create(recursive: true);
+    }
+    final String dbPath = p.join(docDir.path, "ssi.sqlite");
+    await SQLHelper.db(path: dbPath);
     await storeDummyVCS();
     List<VC> localvcs = await VCService().getAllVCs();
+    Did localDid = (await DIDService().ensureDIDExists(didId: 0))[0];
     String localOutOfBandIssuanceInvitation =
         await getOutOfBandIssuanceInvitation();
     String localOutOfBandPresentationInvitation =
         await getOutOfBandPresentationInvitation();
     setState(() {
+      mobileDid = localDid;
       vcs = localvcs;
       outOfBandIssuanceInvitation = localOutOfBandIssuanceInvitation;
       outOfBandPresentationInvitation = localOutOfBandPresentationInvitation;
@@ -86,11 +98,17 @@ class _VCPageState extends State<VCPage> {
         title: Text(widget.title),
         actions: <Widget>[
           IconButton(
+            icon: const Icon(Icons.info),
+            onPressed: () {
+              Navigator.pushNamed(context, '/diddetails', arguments: mobileDid);
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
               refresh();
             },
-          )
+          ),
         ],
       ),
       body: Center(
@@ -128,17 +146,17 @@ class _VCPageState extends State<VCPage> {
         //     },
         //     tooltip: 'Add presentation',
         //     child: const Icon(Icons.receipt)),
-        // const SizedBox(
-        //   width: 8,
-        // ),
-        // FloatingActionButton(
-        //     heroTag: null,
-        //     onPressed: () {
-        //       Navigator.pushNamed(context, '/ssiworkflow',
-        //           arguments: outOfBandPresentationInvitation);
-        //     },
-        //     tooltip: 'Add presentation',
-        //     child: const Icon(Icons.send)),
+        const SizedBox(
+          width: 8,
+        ),
+        FloatingActionButton(
+            heroTag: null,
+            onPressed: () {
+              Navigator.pushNamed(context, '/ssiworkflow',
+                  arguments: outOfBandPresentationInvitation);
+            },
+            tooltip: 'Add presentation',
+            child: const Icon(Icons.send)),
       ]),
     );
   }

@@ -33,7 +33,6 @@ void main() {
   // });
   test.test('Get Did from DB', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
-    await SQLHelper.deleteAllDid();
     Did did = didFromJson(rawDid);
     await SQLHelper.createDid(did);
     Did didFromDb = await DIDService().getDid(0);

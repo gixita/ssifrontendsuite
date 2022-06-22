@@ -1,11 +1,7 @@
-// import 'package:flutter/foundation.dart';
 import 'package:sqlite_wrapper/sqlite_wrapper.dart';
 import 'did_model.dart';
 import 'vc_model.dart';
 import 'package:path/path.dart' as p;
-import 'dart:io';
-// import 'package:path_provider/path_provider.dart'
-//     if (dart.library.io) 'my_path_provider.dart';
 
 class SQLHelper {
   static final SQLHelper _singleton = SQLHelper._internal();
@@ -79,28 +75,18 @@ class SQLHelper {
       )""");
   }
 
-  static Future<SQLiteWrapper> db({inMemory = false}) async {
+  static Future<SQLiteWrapper> db({inMemory = true, String? path}) async {
     String dbPath = inMemoryDatabasePath;
     if (!inMemory) {
-      dbPath = p.join("./ssi.sqlite");
-      // if (Platform.isAndroid) {
-      //   final docDir = await getApplicationDocumentsDirectory();
-      //   if (!await docDir.exists()) {
-      //     await docDir.create(recursive: true);
-      //   }
-      //   dbPath = p.join(docDir.path, "ssi.sqlite");
-      // }
-      print(p.current);
-
-      if (Platform.isAndroid) {
-        dbPath = p.join(
-            "/data/user/0/com.example.mobilewallet/app_flutter/ssi.sqlite");
+      if (path == null) {
+        dbPath = p.join("./ssi.sqlite");
+      } else {
+        dbPath = p.join(path);
       }
     }
     await SQLiteWrapper().openDB(dbPath, version: 1, onCreate: () async {
       await createTables();
     });
-    // Print where the database is stored
     return SQLiteWrapper();
   }
 
@@ -169,30 +155,7 @@ class SQLHelper {
     return true;
   }
 
-  // static Future<int> updateItem(
-  //     int id, String title, String? descrption) async {
-
-  //   final data = {
-  //     'title': title,
-  //     'description': descrption,
-  //     'createdAt': DateTime.now().toString()
-  //   };
-
-  //   final result =
-  //       await db.update('items', data, where: "id = ?", whereArgs: [id]);
-  //   return result;
-  // }
-
-  static Future<void> deleteAllDid() async {
-    // try {
-    //   await db.delete("dids", where: "1");
-    // } catch (err) {
-    //   debugPrint("Something went wrong when deleting an item: $err");
-    // }
-  }
-
   static Future<VC> storeVC(VC vc) async {
-    // final db = await SQLHelper.db();
     final vcData = {
       'issuer': vc.issuer,
       'issuanceDate': vc.issuanceDate,

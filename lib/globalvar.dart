@@ -1,4 +1,4 @@
 class GlobalVar {
   static const String host =
-      "https://673a-2a02-a03f-c098-7400-9e4d-4327-1b3b-5b45.eu.ngrok.io";
+      "https://a0bc-2a02-a03f-c098-7400-81d7-e24f-827e-38b3.eu.ngrok.io";
 }

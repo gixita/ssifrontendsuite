@@ -5,6 +5,7 @@ import 'qrviewexample.dart';
 import 'ssiworkflow.dart';
 import 'vcdetailspage.dart';
 import 'defineissuerlabel.dart';
+import 'diddetailspage.dart';
 
 class MobileWalletSSIElia extends StatelessWidget {
   const MobileWalletSSIElia({Key? key}) : super(key: key);
@@ -25,6 +26,8 @@ class MobileWalletSSIElia extends StatelessWidget {
         '/didlabel': (context) => const DefineIssuerLabelPage(),
         '/vcdetails': (context) =>
             const VCDetailsPage(title: 'Documents details'),
+        '/diddetails': (context) =>
+            const DidDetailsPage(title: 'My DID details'),
       },
     ));
   }

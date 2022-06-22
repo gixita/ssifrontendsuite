@@ -26,6 +26,9 @@ class DIDService {
                 "x": "${didFromDb['x']}",
                 "kty": "${didFromDb['kty']}",
                 "kid": "${didFromDb['kid']}"
+            }, 
+            "privateKeyJwk": {
+              "d": "${didFromDb['d']}"
             }
         }
     ]

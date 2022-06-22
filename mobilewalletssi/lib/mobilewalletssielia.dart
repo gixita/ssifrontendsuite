@@ -16,7 +16,7 @@ class MobileWalletSSIElia extends StatelessWidget {
         child: MaterialApp(
       title: 'SSI Wallet Elia Group',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.blueGrey,
       ),
       initialRoute: '/',
       routes: {

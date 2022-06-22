@@ -146,17 +146,17 @@ class _VCPageState extends State<VCPage> {
         //     },
         //     tooltip: 'Add presentation',
         //     child: const Icon(Icons.receipt)),
-        const SizedBox(
-          width: 8,
-        ),
-        FloatingActionButton(
-            heroTag: null,
-            onPressed: () {
-              Navigator.pushNamed(context, '/ssiworkflow',
-                  arguments: outOfBandPresentationInvitation);
-            },
-            tooltip: 'Add presentation',
-            child: const Icon(Icons.send)),
+        // const SizedBox(
+        //   width: 8,
+        // ),
+        // FloatingActionButton(
+        //     heroTag: null,
+        //     onPressed: () {
+        //       Navigator.pushNamed(context, '/ssiworkflow',
+        //           arguments: outOfBandPresentationInvitation);
+        //     },
+        //     tooltip: 'Add presentation',
+        //     child: const Icon(Icons.send)),
       ]),
     );
   }

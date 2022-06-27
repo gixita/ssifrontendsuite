@@ -84,16 +84,19 @@ class _SelectVCToPresentPageState extends State<SelectVCToPresentPage> {
                           String body = """{
                             "types": ["${presentationVCType[index]}"]
                           }""";
-                          var res = await http.post(
-                              Uri.parse(
-                                  "${GlobalVar.host}/api/startpresentation"),
-                              headers: {'Authorization': 'Token $token'},
-                              body: body);
-                          if (res.statusCode == 200) {
-                            showAlertDialog(context, res.body);
-                          } else {
-                            showAlertDialog(context, "Error");
-                          }
+                          await http
+                              .post(
+                                  Uri.parse(
+                                      "${GlobalVar.host}/api/startpresentation"),
+                                  headers: {'Authorization': 'Token $token'},
+                                  body: body)
+                              .then((res) {
+                            if (res.statusCode == 200) {
+                              showAlertDialog(context, res.body);
+                            } else {
+                              showAlertDialog(context, "Error");
+                            }
+                          });
                         },
                       ),
                       const SizedBox(width: 8),

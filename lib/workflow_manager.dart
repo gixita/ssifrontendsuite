@@ -88,8 +88,6 @@ class WorkflowManager {
     Workflow wf = Workflow();
     VCService vcService = VCService();
     String exchangeDefinition = params[4][0];
-    print("here");
-
     return await vcService
         .getVCsByTypes(wf.getTypesFromExchangeDefinition(exchangeDefinition));
   }
@@ -184,7 +182,7 @@ class WorkflowManager {
         .fillInPresentationForIssuanceUnsigned(client, vcs, authorityPortalDid);
     String residentCardPresentation = await wf.provePresentation(
         client, residentCardUnsignedPresentationFilled);
-    http.Response res = await wf.reviewAndSubmitPresentation(
+    await wf.reviewAndSubmitPresentation(
         client, residentCardPresentation, serviceEndpoint);
   }
 

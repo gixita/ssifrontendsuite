@@ -140,7 +140,6 @@ class Workflow {
 
   // This search for compatible vc is only using the VC types as criteria
   List<String> getTypesFromExchangeDefinition(String exchangeDefinition) {
-    print(exchangeDefinition);
     var exchange = jsonDecode(exchangeDefinition);
     List<String> types = [];
     if (exchange["vpRequest"]["query"] != null) {
@@ -175,8 +174,7 @@ class Workflow {
         }
       }
     }
-    print(types);
-    if (types.length == 0) {
+    if (types.isEmpty) {
       throw "Error there is not types defines for the presentation query";
     }
     return types;

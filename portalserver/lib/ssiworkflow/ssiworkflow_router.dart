@@ -57,6 +57,19 @@ class SSIWorkflowRouter {
     }
   }
 
+  Future<Response> _getOutOfBandPresentationInvitation(Request request) async {
+    WorkflowManager wfm = WorkflowManager();
+
+    final requestBody = await request.readAsString();
+    print(requestBody);
+    final requestData = json.decode(requestBody);
+    if (requestData['types'] == null) {
+      throw "You must provide the type of vc to present";
+    }
+    return Response.ok(await wfm.getOutOfBandPresentationInvitation(
+        (requestData['types'] as List<dynamic>).cast<String>()));
+  }
+
   // Currently only support simple issuance, need to implement conditionnal issuance
   Future<Response> _issueVC(Request request) async {
     WorkflowManager wfm = WorkflowManager();
@@ -103,6 +116,12 @@ class SSIWorkflowRouter {
         Pipeline()
             // .addMiddleware(authProvider.requireAuth())
             .addHandler(_issueVC));
+
+    router.post(
+        '/startpresentation',
+        Pipeline()
+            .addMiddleware(authProvider.requireAuth())
+            .addHandler(_getOutOfBandPresentationInvitation));
 
     return router;
   }

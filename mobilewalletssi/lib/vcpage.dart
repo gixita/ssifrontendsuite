@@ -25,6 +25,7 @@ class _VCPageState extends State<VCPage> {
   List<VC> vcs = [];
   String outOfBandIssuanceInvitation = "";
   String outOfBandPresentationInvitation = "";
+  String dbPathTemp = "";
   late Did mobileDid;
 
   Future<bool> storeInDb() async {
@@ -33,6 +34,7 @@ class _VCPageState extends State<VCPage> {
       await docDir.create(recursive: true);
     }
     final String dbPath = p.join(docDir.path, "ssi.sqlite");
+
     await SQLHelper.db(path: dbPath);
     await storeDummyVCS();
     List<VC> localvcs = await VCService().getAllVCs();
@@ -46,6 +48,7 @@ class _VCPageState extends State<VCPage> {
       vcs = localvcs;
       outOfBandIssuanceInvitation = localOutOfBandIssuanceInvitation;
       outOfBandPresentationInvitation = localOutOfBandPresentationInvitation;
+      dbPathTemp = dbPath;
     });
     return true;
   }
@@ -55,7 +58,8 @@ class _VCPageState extends State<VCPage> {
   }
 
   Future<String> getOutOfBandPresentationInvitation() async {
-    return await WorkflowManager().getOutOfBandPresentationInvitation();
+    return await WorkflowManager()
+        .getOutOfBandPresentationInvitation(["PermanentResidentCard"]);
   }
 
   @override
@@ -157,6 +161,16 @@ class _VCPageState extends State<VCPage> {
         //     },
         //     tooltip: 'Add presentation',
         //     child: const Icon(Icons.send)),
+        const SizedBox(
+          width: 8,
+        ),
+        FloatingActionButton(
+            heroTag: null,
+            onPressed: () {
+              showAlertDialog(context);
+            },
+            tooltip: 'Add presentation',
+            child: const Icon(Icons.info)),
       ]),
     );
   }
@@ -221,5 +235,42 @@ class _VCPageState extends State<VCPage> {
             ),
           );
         });
+  }
+
+  showAlertDialog(BuildContext context) {
+    // set up the buttons
+    Widget cancelButton = TextButton(
+      child: const Text("Cancel"),
+      onPressed: () {
+        Navigator.pop(context, false);
+      },
+    );
+    Widget continueButton = TextButton(
+      child: const Text(
+        "Ok",
+        style: TextStyle(color: Colors.red),
+      ),
+      onPressed: () async {
+        Navigator.pop(context, false);
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Directory"),
+      content: Text(dbPathTemp),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 }

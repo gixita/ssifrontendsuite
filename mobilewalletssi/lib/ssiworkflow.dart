@@ -233,6 +233,18 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
                       title: Text(listVC[index].type.join(", ").toString()),
                       subtitle: Text('Issuer: ${listVC[index].issuer}'),
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        TextButton(
+                            child: const Text('View details'),
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/vcdetails',
+                                  arguments: listVC[index]);
+                            }),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
                     const SizedBox(
                       height: 8,
                     ),

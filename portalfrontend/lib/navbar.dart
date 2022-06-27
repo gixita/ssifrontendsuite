@@ -47,6 +47,11 @@ class NavBar extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, '/selectvctype'),
           ),
           ListTile(
+            leading: const Icon(Icons.share),
+            title: const Text('Present a document'),
+            onTap: () => Navigator.pushNamed(context, '/selectvctopresent'),
+          ),
+          ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
             onTap: () async {

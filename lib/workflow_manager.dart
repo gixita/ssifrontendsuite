@@ -88,6 +88,7 @@ class WorkflowManager {
     Workflow wf = Workflow();
     VCService vcService = VCService();
     String exchangeDefinition = params[4][0];
+    print("here");
 
     return await vcService
         .getVCsByTypes(wf.getTypesFromExchangeDefinition(exchangeDefinition));
@@ -104,9 +105,9 @@ class WorkflowManager {
 
     String unsignedPresentation = wf.fillInPresentationByMobileAppUnsigned(
         client, vcsToPresent, holder, currentWorkflow, challenge);
-
     String signedPresentation =
         await wf.provePresentation(client, unsignedPresentation);
+    prettyPrintJson(signedPresentation);
     List<String> endOfPresentationResponse =
         await wf.continueWithSignedPresentation(
             client, signedPresentation, serviceEndpoint);
@@ -116,6 +117,15 @@ class WorkflowManager {
     } else {
       return true;
     }
+  }
+
+  void prettyPrintJson(String input) {
+    const JsonDecoder decoder = JsonDecoder();
+    const JsonEncoder encoder = JsonEncoder.withIndent('  ');
+    final dynamic object = decoder.convert(input);
+    final dynamic prettyString = encoder.convert(object);
+    // ignore: avoid_print
+    prettyString.split('\n').forEach((dynamic element) => print(element));
   }
 
   // This is a temporary method and should be deleted as soon as the authority portal is released
@@ -174,7 +184,7 @@ class WorkflowManager {
         .fillInPresentationForIssuanceUnsigned(client, vcs, authorityPortalDid);
     String residentCardPresentation = await wf.provePresentation(
         client, residentCardUnsignedPresentationFilled);
-    await wf.reviewAndSubmitPresentation(
+    http.Response res = await wf.reviewAndSubmitPresentation(
         client, residentCardPresentation, serviceEndpoint);
   }
 
@@ -216,25 +226,15 @@ class WorkflowManager {
   }
 
   // Temporary method to configure server for presentation
-  Future<String> getOutOfBandPresentationInvitation() async {
+  Future<String> getOutOfBandPresentationInvitation(List<String> types) async {
     http.Client client = http.Client();
     Workflow wf = Workflow();
-
-    String uuidEchangeId = wf.generateRandomEchangeId();
-    String issuanceFakeConfiguration = """{
-   "exchangeId":"$uuidEchangeId",
-   "query":[
-      {
-         "type":"PresentationDefinition",
-         "credentialQuery":[
-            {
-               "presentationDefinition":{
-                    "id":"286bc1e0-f1bd-488a-a873-8d71be3c690e",
-                    "input_descriptors":[
-                        {
-                          "id":"permanent_resident_card",
-                          "name":"Permanent Resident Card",
-                          "purpose":"We can only allow permanent residents into the application",
+    List<String> inputDescriptors = [];
+    for (var element in types) {
+      inputDescriptors.add("""{
+                          "id":"$element",
+                          "name":"$element",
+                          "purpose":"$element",
                           "constraints": {
                             "fields":[
                               {
@@ -245,13 +245,27 @@ class WorkflowManager {
                                   "type":"array",
                                   "contains":{
                                     "type":"string",
-                                    "const":"PermanentResidentCard"
+                                    "const":"$element"
                                   }
                                 }
                               }
                             ]
                           }
-                        }
+                        }""");
+    }
+    final String inputDescriptorsString = inputDescriptors.join(", ");
+    String uuidEchangeId = wf.generateRandomEchangeId();
+    String presentationConfiguration = """{
+   "exchangeId":"$uuidEchangeId",
+   "query":[
+      {
+         "type":"PresentationDefinition",
+         "credentialQuery":[
+            {
+               "presentationDefinition":{
+                    "id":"286bc1e0-f1bd-488a-a873-8d71be3c690e",
+                    "input_descriptors":[
+                        $inputDescriptorsString
                     ]
                 }
             }
@@ -269,11 +283,16 @@ class WorkflowManager {
       }]
 }""";
     // Fake Authority portal configure the SSI server for mediated issuance
-    await wf.configureCredentialExchange(client, issuanceFakeConfiguration);
-    // Get the outofband exchange invitation for the mobile wallet
-    String credentialType = "";
-    String outOfBandInvitation = wf.authorityReturnExchangeInvitation(
-        issuanceFakeConfiguration, credentialType);
-    return outOfBandInvitation;
+    http.Response res =
+        await wf.configureCredentialExchange(client, presentationConfiguration);
+    if (res.statusCode == 201) {
+      String credentialType = "";
+      String outOfBandInvitation = wf.authorityReturnExchangeInvitation(
+          presentationConfiguration, credentialType);
+
+      return outOfBandInvitation;
+    } else {
+      throw "It was not possible to configure the server for a presentation";
+    }
   }
 }

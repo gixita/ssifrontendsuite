@@ -24,8 +24,8 @@ dependencies:
   sqlite_wrapper: ^0.0.8
   sqlite3_flutter_libs: ^0.5.7
 
+
 dev_dependencies:
-  http: ^0.13.0
   lints: ^2.0.0
   test: ^1.15.0
 

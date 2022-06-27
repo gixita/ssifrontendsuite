@@ -45,9 +45,9 @@ void main() {
     ]
 }""";
     // Fake Authority portal configure the SSI server for mediated issuance
-    String resConf =
+    http.Response resConf =
         await wf.configureCredentialExchange(client, issuanceFakeConfiguration);
-    var resConfJson = jsonDecode(resConf);
+    var resConfJson = jsonDecode(resConf.body);
     expect(resConfJson['errors'].isEmpty, true);
     // Get the outofband exchange invitation for the mobile wallet
     String credentialType = "PermanentResidentCard";
@@ -123,9 +123,9 @@ void main() {
         client, residentCardUnsignedPresentationFilled);
     expect(residentCardPresentation.isNotEmpty, true);
 
-    String submitVPResult = await wf.reviewAndSubmitPresentation(
+    http.Response submitVPResponse = await wf.reviewAndSubmitPresentation(
         client, residentCardPresentation, serviceEndpoint);
-    expect(jsonDecode(submitVPResult)['errors'].isEmpty, true);
+    expect(jsonDecode(submitVPResponse.body)['errors'].isEmpty, true);
     // Mobile app is requesting the vp back
     List<String> residentCardVPForMA = await wf.continueWithSignedPresentation(
         client, authProofSigned, serviceEndpoint);
@@ -185,9 +185,9 @@ void main() {
    "callback":[]
 }""";
     // Fake Authority portal configure the SSI server for mediated issuance
-    String resConf4P = await wf.configureCredentialExchange(
+    http.Response resConf4P = await wf.configureCredentialExchange(
         client, issuanceFakeConfiguration4P);
-    var resConfJson4P = jsonDecode(resConf4P);
+    var resConfJson4P = jsonDecode(resConf4P.body);
     expect(resConfJson4P['errors'].isEmpty, true);
     // Get the outofband exchange invitation for the mobile wallet
     String credentialType4P = "";
@@ -266,9 +266,9 @@ void main() {
     ]
 }""";
     // Fake Authority portal configure the SSI server for mediated issuance
-    String resConf =
+    http.Response resConf =
         await wf.configureCredentialExchange(client, issuanceFakeConfiguration);
-    var resConfJson = jsonDecode(resConf);
+    var resConfJson = jsonDecode(resConf.body);
     expect(resConfJson['errors'].isEmpty, true);
     // Get the outofband exchange invitation for the mobile wallet
     String credentialType = "PermanentResidentCard";
@@ -331,9 +331,9 @@ void main() {
         client, residentCardUnsignedPresentationFilled);
     expect(residentCardPresentation.isNotEmpty, true);
 
-    String submitVPResult = await wf.reviewAndSubmitPresentation(
+    http.Response submitVPResponse = await wf.reviewAndSubmitPresentation(
         client, residentCardPresentation, serviceEndpoint);
-    expect(jsonDecode(submitVPResult)['errors'].isEmpty, true);
+    expect(jsonDecode(submitVPResponse.body)['errors'].isEmpty, true);
     // Finish with worflow manager
     VC issuedCredential = await WorkflowManager()
         .retreiveSignedVCFromAuthority(params, mobileAppDid);

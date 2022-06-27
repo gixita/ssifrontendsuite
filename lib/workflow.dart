@@ -35,26 +35,21 @@ class Workflow {
   // Fake the portal generate a UUID for the exchange id
   String generateRandomEchangeId() {
     var rng = Random();
-    String randomNumber = rng.nextInt(100000).toString();
-    return "resident-card-issuance-$randomNumber";
+    String randomNumber = rng.nextInt(100000000).toString();
+    return randomNumber;
   }
 
-  Future<String> configureCredentialExchange(
+  Future<http.Response> configureCredentialExchange(
       http.Client client, String configuration) async {
     final url = Uri.parse("${baseURL}vc-api/exchanges");
     Map<String, String> requestHeaders = {
       'Content-type': 'application/json',
     };
     final body = configuration;
-
     http.Response res =
         await client.post(url, body: body, headers: requestHeaders);
 
-    if (res.statusCode == 201) {
-      return res.body;
-    } else {
-      throw "Unable to configure the SSI server for a new exchange";
-    }
+    return res;
   }
 
   // Fake the authority portal
@@ -143,9 +138,48 @@ class Workflow {
     return <String>[];
   }
 
-  // TADA update the code to grab the vc type from the exchange definition
+  // This search for compatible vc is only using the VC types as criteria
   List<String> getTypesFromExchangeDefinition(String exchangeDefinition) {
-    return <String>["VerifiableCredential"];
+    print(exchangeDefinition);
+    var exchange = jsonDecode(exchangeDefinition);
+    List<String> types = [];
+    if (exchange["vpRequest"]["query"] != null) {
+      for (var queries in exchange["vpRequest"]["query"]) {
+        if (queries["type"] == "PresentationDefinition") {
+          if (queries["credentialQuery"] != null) {
+            for (var credentialQuery in queries["credentialQuery"]) {
+              if (credentialQuery["presentationDefinition"]
+                      ["input_descriptors"] !=
+                  null) {
+                for (var descriptors
+                    in credentialQuery["presentationDefinition"]
+                        ["input_descriptors"]) {
+                  if (descriptors["constraints"]["fields"] != null) {
+                    for (var fields in descriptors["constraints"]["fields"]) {
+                      if (fields["path"] != null) {
+                        List<String> paths =
+                            (fields["path"] as List<dynamic>).cast<String>();
+                        if (paths.contains("\$.type")) {
+                          if (fields["filter"]["contains"]["const"] != null) {
+                            types.add(fields["filter"]["contains"]["const"]
+                                .toString());
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    print(types);
+    if (types.length == 0) {
+      throw "Error there is not types defines for the presentation query";
+    }
+    return types;
   }
 
   // The mobile wallet creates a proof on its own ssi server
@@ -331,7 +365,7 @@ class Workflow {
   }
 
   // Authority portal review a presentation for submission
-  Future<String> reviewAndSubmitPresentation(http.Client client,
+  Future<http.Response> reviewAndSubmitPresentation(http.Client client,
       String signedPresentation, String serviceEndpoint) async {
     final url = Uri.parse("$serviceEndpoint/review");
     Map<String, String> requestHeaders = {
@@ -346,7 +380,7 @@ class Workflow {
     http.Response res =
         await client.post(url, body: body, headers: requestHeaders);
     if (res.statusCode == 201) {
-      return res.body;
+      return res;
     } else {
       throw "Unable to review and submit presentation on the SSI server";
     }
@@ -365,6 +399,7 @@ class Workflow {
     // Maybe the headers should not be provided
     http.Response res =
         await client.put(url, body: body, headers: requestHeaders);
+
     return <String>[res.statusCode.toString(), res.body];
   }
 }

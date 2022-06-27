@@ -6,6 +6,7 @@ import 'outofbandinvitation.dart';
 import 'selectvctoissue.dart';
 import 'issueidentitypage.dart';
 import 'electricvehiculeissuepage.dart';
+import 'selectvctopresent.dart';
 
 // https://realto.readme.io/docs/entities-and-energy-devices
 void main() {
@@ -47,6 +48,8 @@ class MyApp extends StatelessWidget {
               const OutOfBandInvitationPage(title: "Scan the QR Code"),
           '/vcissued': (context) =>
               const VCIssuedToMePage(title: "Documents issued by "),
+          '/selectvctopresent': (context) =>
+              const SelectVCToPresentPage(title: "Present a document"),
         });
   }
 }

@@ -113,7 +113,7 @@ WantedBy=multi-user.target
 ### Mobile wallet
 - In the source folder `mobilessiwallet` run
 `flutter build apk --split-per-abi`
-- Copy the apk files from `build/app/outputs/flutter-apk/` to the server `ssiserver/apkfiles`
+- Copy the apk file `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` to the server `ssiserver/frontend`
 
 ## Configure Nginx
 - Create a first file called
@@ -206,7 +206,21 @@ location ~ {
         proxy_redirect off;
         proxy_max_temp_file_size 0;
         try_files $uri $uri/ =404;
-}}
+}
+location = /mobilewallet.apk {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        add_header Front-End-Https on;
+        proxy_headers_hash_max_size 512;
+        proxy_headers_hash_bucket_size 64;
+        proxy_buffering off;
+        proxy_redirect off;
+        proxy_max_temp_file_size 0;
+        try_files /app-arm64-v8a-release.apk $uri/ =404;
+}
+}
 
 server {
     if ($host = ssiportal.eliagroup.io) {

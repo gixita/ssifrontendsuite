@@ -52,13 +52,20 @@ class UsersRouter {
       return Response(422,
           body: jsonEncode(ErrorDto(errors: ['password is required'])));
     }
-    var did = await DIDService().createDid();
-    print("new id of did = ${did[1]}");
+    int didId = 0;
+    if (!(await usersService.usernameOrEmailExists(username, email))) {
+      didId = (await DIDService().createDid())[1];
+    } else {
+      return Response(409,
+          body: jsonEncode(
+              ErrorDto(errors: ['Username or email already exists'])));
+    }
+
     User user;
 
     try {
       user = await usersService.createUser(
-          didId: did[1], username: username, email: email, password: password);
+          didId: didId, username: username, email: email, password: password);
     } on ArgumentException catch (e) {
       return Response(422, body: jsonEncode(ErrorDto(errors: [e.message])));
     } on AlreadyExistsException catch (e) {
@@ -68,10 +75,7 @@ class UsersRouter {
     final token = jwtService.getToken(user.email);
 
     final userDto = UserDto(
-        didId: did[1],
-        username: user.username,
-        email: user.email,
-        token: token);
+        didId: didId, username: user.username, email: user.email, token: token);
 
     return Response(201, body: jsonEncode(userDto));
   }

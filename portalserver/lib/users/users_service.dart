@@ -49,6 +49,16 @@ class UsersService {
         updatedAt: DateTime.parse(updatedAt.toString()));
   }
 
+  Future<bool> usernameOrEmailExists(String username, String email) async {
+    final result = await db.query(
+        "SELECT * from $usersTable where username = '$username' or email = '$email' limit 1");
+
+    if (result.isEmpty) {
+      return false;
+    }
+    return true;
+  }
+
   Future<User?> getUserById(String userId) async {
     final result = await db
         .query("SELECT * from $usersTable where id = '$userId' limit 1");

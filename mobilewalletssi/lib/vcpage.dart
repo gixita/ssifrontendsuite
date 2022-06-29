@@ -38,6 +38,7 @@ class _VCPageState extends State<VCPage> {
     await SQLHelper.db(path: dbPath);
     await storeDummyVCS();
     List<VC> localvcs = await VCService().getAllVCs();
+    // print did from db directly
     Did localDid = (await DIDService().ensureDIDExists(didId: 0))[0];
     String localOutOfBandIssuanceInvitation =
         await getOutOfBandIssuanceInvitation();
@@ -161,16 +162,16 @@ class _VCPageState extends State<VCPage> {
         //     },
         //     tooltip: 'Add presentation',
         //     child: const Icon(Icons.send)),
-        const SizedBox(
-          width: 8,
-        ),
-        FloatingActionButton(
-            heroTag: null,
-            onPressed: () {
-              showAlertDialog(context);
-            },
-            tooltip: 'Add presentation',
-            child: const Icon(Icons.info)),
+        // const SizedBox(
+        //   width: 8,
+        // ),
+        // FloatingActionButton(
+        //     heroTag: null,
+        //     onPressed: () {
+        //       showAlertDialog(context);
+        //     },
+        //     tooltip: 'Add presentation',
+        //     child: const Icon(Icons.info)),
       ]),
     );
   }

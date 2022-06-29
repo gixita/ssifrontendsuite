@@ -32,6 +32,9 @@ class DIDHttpService {
     var data = json.decode(res.body);
     holder.verificationMethod[0].privateKeyJwk =
         PrivateKeyJwk(d: data['privateKey']['d']);
+    if (data['privateKey']['d'] == null) {
+      throw "Error : could not retreive private key form the server";
+    }
     return holder;
   }
 

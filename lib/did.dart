@@ -60,9 +60,11 @@ class DIDService {
       if (didExistRemotely) {
         return [did, 0];
       } else {
-        didHttp.setPrivateKeyToServer(client, did);
+        await didHttp.setPrivateKeyToServer(client, did);
+        return [did, 0];
       }
+    } else {
+      return await createDid();
     }
-    return await createDid();
   }
 }

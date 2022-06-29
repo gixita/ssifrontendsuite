@@ -142,13 +142,13 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
                   const Text("Your documents are send"),
                   background: Colors.green,
                 );
-                Navigator.of(context).pop();
+                Navigator.popUntil(context, ModalRoute.withName('/'));
               } else {
                 showSimpleNotification(
                   const Text("An error occured, please try again"),
                   background: Colors.red,
                 );
-                Navigator.of(context).pop();
+                Navigator.popUntil(context, ModalRoute.withName('/'));
               }
             });
           },

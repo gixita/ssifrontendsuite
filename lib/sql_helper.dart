@@ -75,7 +75,7 @@ class SQLHelper {
       )""");
   }
 
-  static Future<SQLiteWrapper> db({inMemory = true, String? path}) async {
+  static Future<SQLiteWrapper> db({inMemory = false, String? path}) async {
     String dbPath = inMemoryDatabasePath;
     if (!inMemory) {
       if (path == null) {

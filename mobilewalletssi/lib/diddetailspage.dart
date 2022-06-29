@@ -73,7 +73,8 @@ class _DidDetailsPageState extends State<DidDetailsPage> {
                       showAlertDialog(context, did);
                     },
                     child: const Text("Show private key"))
-                : Text(didPrivateKey),
+                : Text(
+                    didPrivateKey = did.verificationMethod[0].privateKeyJwk!.d),
           ],
         ),
       ),
@@ -94,6 +95,9 @@ class _DidDetailsPageState extends State<DidDetailsPage> {
         style: TextStyle(color: Colors.red),
       ),
       onPressed: () async {
+        if (did.verificationMethod.isEmpty) {
+          throw "Error : No verification method found";
+        }
         setState(() {
           if (did.verificationMethod[0].privateKeyJwk == null) {
             throw "Error : the private key is null";

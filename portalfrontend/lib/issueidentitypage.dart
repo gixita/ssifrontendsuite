@@ -18,6 +18,11 @@ class _IssueIdentityPageState extends State<IssueIdentityPage> {
   String? genderSelected = "Male";
   String? countrySelected = "Belgium";
   String vc = "";
+  final emailController = TextEditingController();
+  final birthdateController = TextEditingController();
+  final firstnameController = TextEditingController();
+  final lastnameController = TextEditingController();
+  final registrationController = TextEditingController();
 
   Future<String?> getToken() async {
     String? local = await AuthUtils.getToken();
@@ -35,11 +40,6 @@ class _IssueIdentityPageState extends State<IssueIdentityPage> {
 
   @override
   Widget build(BuildContext context) {
-    final emailController = TextEditingController();
-    final birthdateController = TextEditingController();
-    final firstnameController = TextEditingController();
-    final lastnameController = TextEditingController();
-    final registrationController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),

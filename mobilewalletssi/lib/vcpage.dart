@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ssifrontendsuite/vc.dart';
 import 'package:ssifrontendsuite/vc_model.dart';
@@ -8,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:ssifrontendsuite/did.dart';
 import 'package:ssifrontendsuite/did_model.dart';
+import 'package:uni_links/uni_links.dart';
 
 // usage of flutter builder described in this tutorial
 // https://www.woolha.com/tutorials/flutter-using-futurebuilder-widget-examples
@@ -27,6 +30,7 @@ class _VCPageState extends State<VCPage> {
   String outOfBandPresentationInvitation = "";
   String dbPathTemp = "";
   late Did mobileDid;
+  String link = "";
 
   Future<bool> storeInDb() async {
     final docDir = await getApplicationDocumentsDirectory();
@@ -68,6 +72,42 @@ class _VCPageState extends State<VCPage> {
     super.initState();
     vcs = [];
     storeInDb();
+    initUniLinks();
+  }
+
+  void parseDeeplinkAndNavigate(String? link) {
+    if (link != null && link != "") {
+      String outOfBandInvitation = """{
+              "outOfBandInvitation": { 
+                  "type": "https://energyweb.org/out-of-band-invitation/vc-api-exchange",
+                  "body": { 
+                      "url": "$link" 
+                  }
+              }
+          } """;
+      Navigator.pushNamed(context, '/ssiworkflow',
+          arguments: outOfBandInvitation);
+    }
+  }
+
+  StreamSubscription? _sub;
+  Future<void> initUniLinks() async {
+    try {
+      getInitialLink().then((link) {
+        parseDeeplinkAndNavigate(link);
+      });
+      _sub = linkStream.listen((String? link) {
+        parseDeeplinkAndNavigate(link);
+      });
+    } on Error {
+      throw "error";
+    }
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
   }
 
   Future<List<VC>> reload() async {

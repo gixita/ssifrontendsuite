@@ -43,14 +43,16 @@ class VerificationMethod {
   PrivateKeyJwk? privateKeyJwk;
 
   factory VerificationMethod.fromJson(Map<String, dynamic> json) {
-    if (json["privateKeyJwk"]["d"] != null &&
-        json["privateKeyJwk"]["d"] != "") {
-      return VerificationMethod(
-          id: json["id"],
-          type: json["type"],
-          controller: json["controller"],
-          publicKeyJwk: PublicKeyJwk.fromJson(json["publicKeyJwk"]),
-          privateKeyJwk: PrivateKeyJwk.fromJson(json["privateKeyJwk"]));
+    if (json["privateKeyJwk"] != null) {
+      if (json["privateKeyJwk"]["d"] != null &&
+          json["privateKeyJwk"]["d"] != "") {
+        return VerificationMethod(
+            id: json["id"],
+            type: json["type"],
+            controller: json["controller"],
+            publicKeyJwk: PublicKeyJwk.fromJson(json["publicKeyJwk"]),
+            privateKeyJwk: PrivateKeyJwk.fromJson(json["privateKeyJwk"]));
+      }
     }
     return VerificationMethod(
       id: json["id"],

@@ -41,6 +41,7 @@ class WorkflowManager {
       // start authentication
       authProofSigned = await wf.retreiveAuthenticationProofFromOwnSSIServer(
           client, holder, exchangeDefinitionJson["vpRequest"]["challenge"]);
+
       bool isAuthenticated = await wf.submitAuthenticationOnAPSSIServer(
           client, authProofSigned, serviceEndpoint);
       if (!isAuthenticated) {
@@ -277,7 +278,7 @@ class WorkflowManager {
    ],
    "isOneTime":true,
    "callback":[{
-        "url": "https://ptsv2.com/t/uuu96-1653299746/post"
+        "url": "${GlobalVar.host}/api/callback/$uuidEchangeId"
       }]
 }""";
     // Fake Authority portal configure the SSI server for mediated issuance

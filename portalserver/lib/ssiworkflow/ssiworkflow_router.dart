@@ -102,6 +102,12 @@ class SSIWorkflowRouter {
     return Response.notFound({"error": "Unsigned vc not found"});
   }
 
+  Future<Response> _callback(Request request) async {
+    final requestBody = await request.readAsString();
+    print(requestBody);
+    return Response.ok("");
+  }
+
   Handler get router {
     final router = Router();
 
@@ -117,6 +123,7 @@ class SSIWorkflowRouter {
             // .addMiddleware(authProvider.requireAuth())
             .addHandler(_issueVC));
 
+    router.post('/callback/<exchangeid>', Pipeline().addHandler(_callback));
     router.post(
         '/startpresentation',
         Pipeline()

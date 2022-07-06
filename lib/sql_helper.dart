@@ -1,4 +1,5 @@
 import 'package:sqlite_wrapper/sqlite_wrapper.dart';
+import 'package:ssifrontendsuite/globalvar.dart';
 import 'did_model.dart';
 import 'vc_model.dart';
 import 'package:path/path.dart' as p;
@@ -75,7 +76,8 @@ class SQLHelper {
       )""");
   }
 
-  static Future<SQLiteWrapper> db({inMemory = true, String? path}) async {
+  static Future<SQLiteWrapper> db(
+      {inMemory = GlobalVar.inMemoryDb, String? path}) async {
     String dbPath = inMemoryDatabasePath;
     if (!inMemory) {
       if (path == null) {

@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'did_model.dart';
+import 'package:ssifrontendsuite/globalvar.dart';
 
 class DIDHttpService {
-  final String baseURL = "https://vc-api-dev.energyweb.org/did";
-  final String baseImportURL = "https://vc-api-dev.energyweb.org/key";
+  final String baseURL = "${GlobalVar.ssiServerURI}/did";
+  final String baseImportURL = "${GlobalVar.ssiServerURI}/key";
 
   Future<Did> getNewDid(http.Client client) async {
     final url = Uri.parse(baseURL);

@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:ssifrontendsuite/did_model.dart';
 import 'package:ssifrontendsuite/vc_model.dart';
 import 'package:ssifrontendsuite/workflow_manager.dart';
+import 'package:ssifrontendsuite/globalvar.dart';
 
 void main() {
   test("RealApi : issuance workflow mediated", () async {
@@ -40,7 +41,7 @@ void main() {
     "isOneTime": true,
     "callback": [
       {
-        "url": "https://ptsv2.com/t/uuu96-1653299746/post"
+        "url": "${GlobalVar.host}/api/callback/$uuidEchangeId"
       }
     ]
 }""";
@@ -261,7 +262,7 @@ void main() {
     "isOneTime": true,
     "callback": [
       {
-        "url": "https://ptsv2.com/t/uuu96-1653299746/post"
+        "url": "${GlobalVar.host}/api/callback/$uuidEchangeId"
       }
     ]
 }""";

@@ -71,41 +71,53 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
     // try {
     List<dynamic> res = await DIDService().ensureDIDExists(didId: 0);
     Did holder = res[0];
-    List<List<String>> params = await getParams(outOfBandInvitation, holder);
-    List<String> currentWorkflow = params[0];
-    // String serviceEndpoint = params[1][0];
-    if (currentWorkflow.contains("present")) {
-      var local = await getCompatibleVCs(params);
-      setState(() {
-        selectVcs = local;
-        present = true;
-        paramsState = params;
-      });
-    } else if (currentWorkflow.contains("issue")) {
-      // await wfm.authorityPortalIssueVC(serviceEndpoint, holder.id);
-      VC receivedVC = await wfm.retreiveSignedVCFromAuthority(params, holder);
-      await vcService.storeVC(receivedVC).then((vc) async {
-        showSimpleNotification(
-          const Text("You received a new vc"),
-          background: Colors.green,
-        );
-        await VCService().getIssuerLabel(vc.issuer).then((label) {
-          if (label.isNotEmpty) {
-            Navigator.popUntil(context, ModalRoute.withName('/'));
-          } else {
-            Navigator.pushNamed(context, '/didlabel', arguments: vc.issuer);
-          }
+    try {
+      List<List<String>> params = await getParams(outOfBandInvitation, holder);
+
+      List<String> currentWorkflow = params[0];
+      // String serviceEndpoint = params[1][0];
+      if (currentWorkflow.contains("present")) {
+        var local = await getCompatibleVCs(params);
+        setState(() {
+          selectVcs = local;
+          present = true;
+          paramsState = params;
         });
-      });
-    } else {
-      throw "This workflow type is not supported yet";
+      } else if (currentWorkflow.contains("issue")) {
+        // await wfm.authorityPortalIssueVC(serviceEndpoint, holder.id);
+        VC receivedVC = await wfm.retreiveSignedVCFromAuthority(params, holder);
+        await vcService.storeVC(receivedVC).then((vc) async {
+          showSimpleNotification(
+            const Text("You received a new vc"),
+            background: Colors.green,
+          );
+          await VCService().getIssuerLabel(vc.issuer).then((label) {
+            if (label.isNotEmpty) {
+              Navigator.popUntil(context, ModalRoute.withName('/'));
+            } else {
+              Navigator.pushNamed(context, '/didlabel', arguments: vc.issuer);
+            }
+          });
+        });
+      } else {
+        throw "This workflow type is not supported yet";
+      }
+      setState(() {});
+      // } catch (error) {
+      //   setState(() {
+      //     errorMessage = "$error";
+      //   });
+      // }
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+      showSimpleNotification(
+        const Text("An error occured, please try again"),
+        background: Colors.red,
+      );
+      // ignore: use_build_context_synchronously
+      Navigator.popUntil(context, ModalRoute.withName('/'));
     }
-    setState(() {});
-    // } catch (error) {
-    //   setState(() {
-    //     errorMessage = "$error";
-    //   });
-    // }
   }
 
   // logic for presentation

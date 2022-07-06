@@ -4,33 +4,10 @@ import 'did_model.dart';
 import 'vc_model.dart';
 import 'vc_parsing.dart';
 import 'dart:math';
+import 'package:ssifrontendsuite/globalvar.dart';
 
 class Workflow {
-  final String baseURL = "https://vc-api-dev.energyweb.org/";
-
-  // Fake the portal
-  // Provide a configuration and configure the SSI server, it only return a
-  // statuscode 201
-  // Example of configuration
-//   {
-//     "exchangeId": "resident-card-issuance",
-//     "query": [
-//       {
-//         "type": "DIDAuth",
-//         "credentialQuery": []
-//       }
-//     ],
-//     "interactServices": [
-//       {
-//         "type": "MediatedHttpPresentationService2021"
-//       }
-//     ],
-//     "callback": [
-//       {
-//         "url": "FILL YOUR TOILET POST URL, for example 'http://ptsv2.com/t/ebitx-1652373826/post'"
-//       }
-//     ]
-// }
+  final String baseURL = "${GlobalVar.ssiServerURI}/";
 
   // Fake the portal generate a UUID for the exchange id
   String generateRandomEchangeId() {
@@ -68,7 +45,7 @@ class Workflow {
         "type": "https://energyweb.org/out-of-band-invitation/vc-api-exchange",
         "body": { 
             $credentialTypeAvailable
-            "url": "https://vc-api-dev.energyweb.org/vc-api/exchanges/$exchangeId" 
+            "url": "${GlobalVar.ssiServerURI}/vc-api/exchanges/$exchangeId" 
         }
     }
 } """;
@@ -107,7 +84,7 @@ class Workflow {
 //             "service": [
 //                 {
 //                     "type": "MediatedHttpPresentationService2021",
-//                     "serviceEndpoint": "https://vc-api-dev.energyweb.org/vc-api/exchanges/resident-card-issuance/65512ccb-5bbc-4e54-858f-5e2f0e728d41"
+//                     "serviceEndpoint": "${GlobalVar.ssiServerURI}/vc-api/exchanges/resident-card-issuance/65512ccb-5bbc-4e54-858f-5e2f0e728d41"
 //                 }
 //             ]
 //         }
@@ -258,10 +235,14 @@ class Workflow {
         await client.put(url, body: body, headers: requestHeaders);
 
     var jsonResponse = jsonDecode(res.body);
+    if (jsonResponse['errors'] == null) {
+      return false;
+    }
     if (jsonResponse['errors'].isEmpty) {
       return true;
+    } else {
+      return false;
     }
-    return false;
   }
 
   // Authority portal after getting notified of authentication being ready

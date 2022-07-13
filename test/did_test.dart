@@ -38,7 +38,8 @@ void main() {
 
   test('Test db', () async {
     await SQLHelper.db();
-    expect(true, true);
+    var did = await DIDService().ensureDIDExists();
+    expect(did, isNotEmpty);
   }, skip: false);
   test('Real API call for DID creation', () async {
     final didHttp = DIDHttpService();

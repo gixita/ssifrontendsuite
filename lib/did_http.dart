@@ -40,11 +40,12 @@ class DIDHttpService {
   }
 
   Future<bool> setPrivateKeyToServer(http.Client client, Did holder) async {
+    // Start with importing the key
     final url = Uri.parse(baseImportURL);
     Map<String, String> requestHeaders = {
       'Content-type': 'application/json',
     };
-    String bodyString = """
+    final String bodyString = """
 {
   "privateKey": {
     "crv": "${holder.verificationMethod[0].publicKeyJwk.crv}",
@@ -59,12 +60,25 @@ class DIDHttpService {
     "kid": "${holder.verificationMethod[0].publicKeyJwk.kid}"
   }
 }""";
-    http.Response res = await client.post(url,
-        body: json.decode(bodyString), headers: requestHeaders);
+    http.Response res =
+        await client.post(url, body: bodyString, headers: requestHeaders);
     if (res.statusCode == 201) {
-      return true;
+      // Second step register the key
+      final registerUrl = Uri.parse(baseURL);
+      final String registerBodyString = """
+{
+  "method": "key",
+  "keyId": "${holder.verificationMethod[0].publicKeyJwk.kid}"
+}""";
+      http.Response registerRes = await client.post(registerUrl,
+          body: registerBodyString, headers: requestHeaders);
+      if (registerRes.statusCode == 201) {
+        return true;
+      } else {
+        throw "Not possible to register key on server";
+      }
     } else {
-      return false;
+      throw "Not possible to import key on server";
     }
   }
 

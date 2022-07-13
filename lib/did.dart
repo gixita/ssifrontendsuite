@@ -60,7 +60,11 @@ class DIDService {
       if (didExistRemotely) {
         return [did, 0];
       } else {
-        await didHttp.setPrivateKeyToServer(client, did);
+        bool isPrivateKeyRegistered =
+            await didHttp.setPrivateKeyToServer(client, did);
+        if (!isPrivateKeyRegistered) {
+          throw "Something went wrong with the registration of the private key on the server";
+        }
         return [did, 0];
       }
     } else {

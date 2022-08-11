@@ -144,7 +144,10 @@ class Workflow {
                 for (var descriptors
                     in credentialQuery["presentationDefinition"]
                         ["input_descriptors"]) {
-                  if (descriptors["constraints"]["fields"] != null) {
+                          // check that the subject is issuer is not set otherwise it would be a consent request.
+                  if (descriptors["constraints"]["fields"] != null &&
+                      descriptors["constraints"]["subject_is_issuer"] !=
+                          "required") {
                     for (var fields in descriptors["constraints"]["fields"]) {
                       if (fields["path"] != null) {
                         List<String> paths =

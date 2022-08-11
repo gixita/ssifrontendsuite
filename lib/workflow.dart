@@ -96,19 +96,33 @@ class Workflow {
   List<String> getCurrentWorkflow(String initializedExchange) {
     final initJson = jsonDecode(initializedExchange);
     var credentialQuery = initJson['vpRequest']['query'];
+    List<String> currentWorkflow = [];
     String interactType =
         initJson['vpRequest']['interact']['service'][0]['type'];
 
     if (interactType == "UnmediatedHttpPresentationService2021") {
       for (var query in credentialQuery) {
         if (query["type"] == "PresentationDefinition") {
-          return ["present"];
+          currentWorkflow.add("present");
+          // Check if the presentation definition contains a consent request
+          for (var credentialQueries in query["credentialQuery"]) {
+            for (var inputDescriptors
+                in credentialQueries["presentationDefinition"]
+                    ["input_descriptors"]) {
+              if (inputDescriptors["constraints"]["subject_is_issuer"] ==
+                  "required") {
+                currentWorkflow.add("consent");
+              }
+            }
+          }
+          return currentWorkflow;
         }
       }
     } else if (interactType == "MediatedHttpPresentationService2021") {
       for (var query in credentialQuery) {
         if (query["type"] == "DIDAuth") {
-          return ["issue"];
+          currentWorkflow.add("issue");
+          return currentWorkflow;
         }
       }
     }

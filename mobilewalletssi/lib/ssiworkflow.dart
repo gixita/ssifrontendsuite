@@ -78,6 +78,10 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
       // String serviceEndpoint = params[1][0];
       if (currentWorkflow.contains("present")) {
         var local = await getCompatibleVCs(params);
+        // TODO add consent VCs (+ sign them) to the local list
+        if (currentWorkflow.contains("consent")) {
+          var localConsents = await getSignedConsents(params);
+        }
         setState(() {
           selectVcs = local;
           present = true;
@@ -146,6 +150,7 @@ class _SSIWorkflowPageState extends State<SSIWorkflowPage> {
           child: const Text("Sign and send"),
           onPressed: () async {
             Did holder = (await DIDService().ensureDIDExists(didId: 0))[0];
+            // TODO store the new consent in the database
             await WorkflowManager()
                 .sendVCs(paramsState, holder, sendVCList)
                 .then((result) {
